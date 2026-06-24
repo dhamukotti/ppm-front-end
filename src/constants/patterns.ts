@@ -1,0 +1,30 @@
+export const pattern = {
+  email:
+    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+  passwordPattern: /^(?=.*?[A-Z])(?=(.*[a-z]){1,})(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{8,}$/,
+  alphaAllowed: /^[A-Z a-z]+$/i,
+  defaultTimeFormat: /^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/,
+  timeFormat: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+  timeFormatInput: /^([0-2]?[0-9]?:?[0-5]?[0-9]?)$/,
+  alphaWithDotAllowed: /^[A-Z . a-z]+$/i,
+  alphaWithUnderscoreAllowed: /^[A-Z _ a-z]+$/i,
+  numbersAllowed: /^[0-9]+$/i,
+  numbersDotAllowed: /^[0-9 .]+$/i,
+  panCardAllowed: /^[A-Za-z]{5}\d{4}[A-Za-z]{1}$/,
+  priceAllowed: /^(?!\.)(\d+(\.\d+)?|\.\d+)$/gi,
+  gstNumber: /\d{2}[A-Z]{5}\d{4}[A-Z]{1}[A-Z\d]{1}[Z]{1}[A-Z\d]{1}/i,
+  urlPattern:
+    /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi,
+  alphaNumericAllowed: /^[A-Z a-z 0-9]+$/i,
+  hexAllowed: /^[A-F a-f 0-9]+$/i,
+  hexValidate: /^#(?:[0-9a-fA-F]{3}){1,2}$/i,
+  imageMime: /(jpg|jpeg|png|gif|JPG|JPEG|PNG|GIF)+$/i,
+  partnerEmail: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+  internationalNumber: /^\+\d{2}-\d{3}-\d{3}-\d{4}$/i,
+  accountNumber: /^([0-9]{9,18})$/i,
+  ifscCode: /^([A-Z]{4}[0][A-Z0-9]{6})$/i,
+  alphaNumericDotAllowed: /^[A-Z a-z 0-9 .]+$/i,
+  alphaNumericCommaDotAllowed: /^[A-Z a-z 0-9 . ,]+$/i,
+  keyPattern: /^(?!.*(?:\s\s|\.\.))[A-Za-z&._-]+(?:[\s][A-Za-z&._-]+)*$/,
+  timeAllowed: /^([0-9]{1,2}):([0-9]{1,2})$/
+}
