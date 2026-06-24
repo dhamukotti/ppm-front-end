@@ -9,7 +9,7 @@ export const routes = {
   dashboard: '/dashboard',
   project: '/project',
   invite: '/invite/',
-  boards:'/Boards',
+  boards:'/boards',
  view:'/view',
  superadmin:'/super-admin',
   // ** Sprints

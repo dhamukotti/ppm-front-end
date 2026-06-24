@@ -8,7 +8,7 @@ export const PROTECTED_ROUTES = [
   '/bug-queue',
   routes.project,
   routes.profile,
-  '/Boards',
+  '/boards',
   '/view',
   '/super-admin',
 
