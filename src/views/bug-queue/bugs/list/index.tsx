@@ -832,11 +832,11 @@ const BugGroupTable = ({
         header: () => <Typography variant='body2' fontWeight={800}>Status</Typography>,
         cell: ({ row: { original } }) => (
           <TaskStatus
-            // row={original}
-            // refetch={refetch}
-            // canEdit={true}
-            // workspaceID={workspaceID}
-            // onStatusChange={handleUpdateStatus}
+            row={original}
+            refetch={refetch}
+            canEdit={true}
+            workspaceID={workspaceID}
+            onStatusChange={handleUpdateStatus}
           />
         )
       }

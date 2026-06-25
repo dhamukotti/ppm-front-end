@@ -98,11 +98,11 @@ const SprintDynamicCell = (props: SprintDynamicCellProps) => {
   if (getColumnTypeName === 'LBL' || getColumnType === 'LBL')
     return (
       <TaskStatus
-        // canEdit={true}
-        // refetch={refetch}
-        // row={row}
-        // dynamicValue={formattedDynamicValue}
-        // columnData={columnItem}
+        canEdit={true}
+        refetch={refetch}
+        row={row}
+        dynamicValue={formattedDynamicValue}
+        columnData={columnItem}
       />
     );
 
