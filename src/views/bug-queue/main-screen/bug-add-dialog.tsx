@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect } from 'react'
+import { useEffect, forwardRef, useImperativeHandle } from 'react'
 
 // ** MUI Components
 import { CircularProgress, Dialog, Divider, FormControl, IconButton, Switch, Typography, Zoom } from '@mui/material'
@@ -26,20 +26,19 @@ import axios from 'axios'
 // If you're using different toast library, adjust accordingly
 import toast from 'react-hot-toast'
 
+// ** Ref type (shared with BugQueueGroup)
+import { BugQueueGroupRef } from '../bugs/groups' // adjust path if needed
+
 type FormFields = {
   groupName: string
   projectID?: number
 }
 
-const NewTaskDialog = ({ 
-  open, 
-  onCloseModal, 
-  onBugGroupCreated
-}: { 
+const NewTaskDialog = forwardRef<BugQueueGroupRef, { 
   open: boolean; 
   onCloseModal: () => void;
   onBugGroupCreated?: () => void;
-}) => {
+}>(({ open, onCloseModal, onBugGroupCreated }, ref) => {
   const { project, refetchTaskGroup } = useProject()
   const params = useParams()
   const WorkspaceID = params?.WorkspaceID ?? params?.workspaceID ?? params?.id
@@ -47,6 +46,10 @@ const NewTaskDialog = ({
   const defaultValues = {
     groupName: ''
   }
+
+  useImperativeHandle(ref, () => ({
+    refetchGroups: refetchTaskGroup
+  }))
 
   const {
     handleSubmit,
@@ -227,6 +230,8 @@ const NewTaskDialog = ({
       </Box>
     </Dialog>
   )
-}
+})
+
+NewTaskDialog.displayName = 'NewTaskDialog'
 
 export default NewTaskDialog

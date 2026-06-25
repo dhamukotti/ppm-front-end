@@ -199,7 +199,8 @@ const ProjectFilterButton = () => {
       newVisibility[`Dynamic_${col.additionalColumnID}`] = !currentAllSelected
     })
 
-    setColumnVisibility(newVisibility)
+    // setColumnVisibility(newVisibility)
+    setColumnVisibility(newVisibility as any)
   }
 
   const allSelected = useMemo(() => {

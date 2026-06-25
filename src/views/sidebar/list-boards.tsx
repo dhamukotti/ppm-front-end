@@ -201,18 +201,38 @@ const WorkspaceItem = ({ workspace, onBoardClick }: { workspace: WorkspaceListIt
 
 const ListBoards = ({ onBoardClick }: { onBoardClick?: (boardId: string) => void }) => {
   // Only showing "Boards" item
+  // const hardcodedWorkspaceList: WorkspaceListItem[] = [
+  //   {
+  //     WorkspaceID: 1,
+  //     WorkspaceName: 'Boards',
+  //     OrganizationID: 1,
+  //     // Add any other required properties from WorkspaceListItem type
+  //     CreatedBy: '',
+  //     ModifiedBy: '',
+  //     CreatedDate: '',
+  //     ModifiedDate: '',
+  //     userProjects:[],
+  //     IsDelete:0,
+  //     UpdatedBy:0,
+  //   }
+  // ]
   const hardcodedWorkspaceList: WorkspaceListItem[] = [
-    {
-      WorkspaceID: 1,
-      WorkspaceName: 'Boards',
-      OrganizationID: 1,
-      // Add any other required properties from WorkspaceListItem type
-      CreatedBy: '',
-      ModifiedBy: '',
-      CreatedDate: '',
-      ModifiedDate: ''
-    }
-  ]
+  {
+    WorkspaceID: 1,
+    WorkspaceName: 'Boards',
+    OrganizationID: 1,
+    CreateDate: '',
+    CreatedBy: '',
+    DeletedDate: null,
+    Deletedby: null,
+    CreatedDate: '',
+    ModifiedDate: '',
+    ModifiedBy: null,
+    IsDelete: 0,
+    UpdatedBy: null,
+    userProjects: []
+  }
+]
 
   return (
     <div className='space-y-1 py-3'>

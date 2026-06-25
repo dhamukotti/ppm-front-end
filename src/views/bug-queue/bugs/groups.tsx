@@ -209,7 +209,14 @@ const BugGroupItem = ({ group, workspaceID, onRefetch, isSelected }: BugGroupIte
           </MenuItem>
         </Menu>
       </div>
-      {true && <NewBugQueue onBugGroupCreated={handleBugGroupCreated} ref={bugQueueGroupRef} />}
+      {true && (
+        <NewBugQueue
+          open={false}
+          onCloseModal={() => {}}
+          onBugGroupCreated={handleBugGroupCreated}
+          ref={bugQueueGroupRef}
+        />
+      )}
       <Collapse in={collapse}>
         <CardContent className='space-y-4'>
           <BugList
@@ -226,7 +233,7 @@ const BugGroupItem = ({ group, workspaceID, onRefetch, isSelected }: BugGroupIte
             showCard={showCard} 
             selectedRows={selectedRows} 
             setSelectedRows={setSelectedRows}
-            selectedBugIDs={selectedBugIDs}
+           // selectedBugIDs={selectedBugIDs}
           />
         </CardContent>
       </Collapse>
@@ -263,8 +270,8 @@ const BugGroupItem = ({ group, workspaceID, onRefetch, isSelected }: BugGroupIte
         setOpen={val => setDeleteOpen(!!val)}
         title={`Delete this Bug Group ?`}
         onConfirm={handleDeleteGroup}
-        refetch={onRefetch}
-        description={'You wont be able to revert this action'}
+     refetch={()=>{}}        
+     description={'You wont be able to revert this action'}
       />
     </Card>
   )

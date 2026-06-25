@@ -84,7 +84,8 @@ export default function CustomizedAccordions({ data, index }: CustomizedAccordio
     refetch: refetchTaskGroup
   } = useQuery({
     queryKey: ['task-group', data?.ProjectID],
-    queryFn: () => fetchTaskGroupList(data?.ProjectID),
+    // queryFn: () => fetchTaskGroupList(data?.ProjectID),
+    queryFn: () => fetchTaskGroupList(data?.ProjectID?.toString()),
     retry: false
   })
 

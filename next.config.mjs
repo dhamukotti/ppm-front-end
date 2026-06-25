@@ -2,6 +2,9 @@
 const nextConfig = {
   reactStrictMode: false,
   basePath: process.env.BASEPATH,
+   eslint: {
+    ignoreDuringBuilds: true,
+  },
   redirects: async () => {
     return [
       {

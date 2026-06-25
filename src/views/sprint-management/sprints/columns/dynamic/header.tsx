@@ -32,15 +32,16 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
   const initialValue = useMemo(() => column?.colname || column?.ColumnName, [column?.colname, column?.ColumnName])
   // ** State
   const { user } = useAuth()
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState<any>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [value, setValue] = useState(initialValue)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [columns, setColumns] = useState([])
-  const [selectedColumn, setSelectedColumn] = useState(null)
+  const [columns, setColumns] = useState<any[]>([])
+  const [selectedColumn, setSelectedColumn] = useState<any>(null)
 
   // ✅ NEW: Separate state to preserve column data for delete/edit even after menu closes
-  const [activeColumn, setActiveColumn] = useState(null)
+  // const [activeColumn, setActiveColumn] = useState(null)
+  const [activeColumn, setActiveColumn] = useState<any>(null)
 
   const handleMenuOpen = (e: any, columnData: any) => {
     setAnchorEl(e?.currentTarget)
@@ -217,6 +218,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
           setOpen={val => setDeleteOpen(!!val)}
           title={getDeleteTitle()}
           onConfirm={handleDelete}
+          refetch={()=>{}}
           description={'You wont be able to revert this action'}
         />
 
@@ -277,6 +279,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
         open={deleteOpen}
         setOpen={val => setDeleteOpen(!!val)}
         title={getDeleteTitle()}
+        refetch={()=>{}}
         onConfirm={handleDelete}
         description={'You wont be able to revert this action'}
       />

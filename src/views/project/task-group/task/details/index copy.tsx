@@ -1,11 +1,7 @@
 import React, { useState } from 'react'
 
-<<<<<<<< HEAD:src/views/project/task-group/task/details/index.tsx
-import { Box, Dialog, DialogContent, DialogTitle, Typography } from '@mui/material'
-========
 import { Box, Dialog, DialogContent, DialogTitle, Typography,IconButton } from '@mui/material'
 import { Icon } from '@iconify/react'
->>>>>>>> origin/sprintmodule:src/views/project/task-group/task/details/index copy.tsx
 
 // MUI Imports
 import TabContext from '@mui/lab/TabContext'

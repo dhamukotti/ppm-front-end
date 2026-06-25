@@ -41,6 +41,7 @@ export interface DynamicDropdownList {
   Valuetxt: string
   IsDelete: number
   TaskID: number
+  additionalColumnID:number
   TaskGroupID: number
   WorkspaceID: number
   ProjectID: number

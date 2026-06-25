@@ -43,6 +43,7 @@ type FormValidateType = { dropdown: any }
 interface SprintDropdownResponse {
   dynamicDropdownID: number;
   valuetxt: string;
+  dynamicDropdownValueID:number
 }
 
 const DynamicDropdown = ({ columnData, rowData, dynamicValue, refetch, canEdit }: DynamicDropdownProps) => {
@@ -122,7 +123,7 @@ const DynamicDropdown = ({ columnData, rowData, dynamicValue, refetch, canEdit }
     // If we have sprint dropdown values, use them (filtering out already selected ones)
     if (transformedSprintValues.length > 0) {
       return transformedSprintValues.filter(i =>
-        selectedValues?.every(val => {
+        selectedValues?.every((val:any) => {
 
           return val.dynamicddlID !== i?.Dynamic_ddl_ID;
         })
@@ -131,7 +132,7 @@ const DynamicDropdown = ({ columnData, rowData, dynamicValue, refetch, canEdit }
     
     // Otherwise fall back to the original dropdown items
     const finalArr = dropdownItems?.filter(i =>
-      selectedValues?.every(val => {
+      selectedValues?.every((val:any) => {
         return val.dynamicddlID !== i?.Dynamic_ddl_ID;
       })
     )
@@ -148,7 +149,8 @@ const DynamicDropdown = ({ columnData, rowData, dynamicValue, refetch, canEdit }
     setCreateMenu(false)
   }
 
-  const handleDropdownSelect = async (item: DynamicDropdownList | null) => {
+  // const handleDropdownSelect = async (item: DynamicDropdownList | null) => {
+  const handleDropdownSelect = async (item: { Dynamic_ddl_ID: number; Valuetxt: string } | null) => {
 
 
     try {
@@ -345,7 +347,7 @@ const DynamicDropdown = ({ columnData, rowData, dynamicValue, refetch, canEdit }
                       getOptionLabel={option => {
                         return option.Valuetxt || ''
                       }}
-                      isOptionEqualToValue={(option, value) => option.dynamicDropdownValueID === value?.dynamicDropdownValueID}
+                      isOptionEqualToValue={(option, value) => option.Dynamic_ddl_ID === value?.Dynamic_ddl_ID}
                       onChange={(event, newValue) => {
                         handleDropdownSelect(newValue)
                       }}
@@ -357,7 +359,7 @@ const DynamicDropdown = ({ columnData, rowData, dynamicValue, refetch, canEdit }
                 <Box minHeight={'50px'}>
                   {selectedValues?.length ? (
                     <Box display={'flex'} alignItems={'center'} flexWrap={'wrap'} rowGap={3} columnGap={3}>
-                      {selectedValues?.map((item, index) => {
+                      {selectedValues?.map((item:any, index:any) => {
                         // Get the value text from either structure
                         const valueText = item?.valueText || item?.Dropdown?.Valuetxt;
                         

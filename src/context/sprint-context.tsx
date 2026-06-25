@@ -33,7 +33,7 @@ const defaultColumnVisibility: ColumnVisibility = {
   Goals: true,
   SprintTimeline: true,
   SprintStatus: true,
-  // ActiveSprint: false
+   ActiveSprint: false
 }
 
 // ** Defaults
@@ -57,7 +57,7 @@ interface SprintManagementProviderProps {
 // ** Fetch sprint groups function
 
 // ** Fetch dynamic columns function
-const fetchSprintDynamicColumns = async (loginuserID: string, workspaceID: string) => {
+const fetchSprintDynamicColumns = async (loginuserID: number, workspaceID: string) => {
   const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL1}/GetSprintDynamiccolumnLlist`, {
     params: {
       LoginuserID: loginuserID,
@@ -69,7 +69,7 @@ const fetchSprintDynamicColumns = async (loginuserID: string, workspaceID: strin
 
 const SprintManagementProvider = ({ children, workspaceID }: SprintManagementProviderProps) => {
   const { user } = useAuth()
-  const loginuserID = user?.id || '76'
+  const loginuserID = user?.id || 0
 
   const { data = [], refetch } = useQuery({
     queryKey: ['sprint-groups', workspaceID],
@@ -95,7 +95,7 @@ const SprintManagementProvider = ({ children, workspaceID }: SprintManagementPro
         Goals: true,
         SprintTimeline: true,
         SprintStatus: true,
-        // ActiveSprint: true
+        ActiveSprint: true
       }
       // Add dynamic columns from API response
       dynamicColumnsData.forEach((group: any) => {

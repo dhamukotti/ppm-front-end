@@ -121,16 +121,26 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
             },
             cell: ({ getValue, row: { index, original: row }, column: { id }, table }) => {
               const value = filterDynamicValue(i?.AdditionalColumnID, row?.additionalValues ?? [])
-              
+
               // Safely handle null/undefined values
-              const safeValue = getValue() ?? ''
+              // FIX (TS2322 line ~130): cast to `any` so it satisfies NoInfer<TTValue>
+              const safeValue = (getValue() ?? '') as any
 
               return (
                 <DynamicColumnCell
                   getValue={() => safeValue}
                   columnItem={i}
                   index={index}
-                  row={{ ...row, TaskGroupID: taskGroupData?.taskGroupID, TaskID: row?.TaskMasterID }}
+                  row={{
+                    ...row,
+                    TaskGroupID: taskGroupData?.taskGroupID,
+                    TaskID: row?.TaskMasterID,
+                    // FIX (TS2322 line ~133): AdditionalSubTaskListItem requires groupID & BugID
+                    groupID: taskGroupData?.taskGroupID,
+                    BugID: 0,
+    SprintID: 0,        // ✅ added — required by AdditionalSubTaskListItem
+    SprintGroupID: 0
+                  }}
                   id={id}
                   table={table}
                   value={value}
@@ -180,7 +190,16 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
           return (
             <TaskPeople
               refetch={refetchSubTask}
-              rowData={{ ...original, TaskGroupID: taskGroupData?.taskGroupID, TaskID: original?.TaskMasterID }}
+              rowData={{
+                ...original,
+                TaskGroupID: taskGroupData?.taskGroupID,
+                TaskID: original?.TaskMasterID,
+                // FIX (TS2322 line ~183): AdditionalSubTaskListItem requires groupID & BugID
+                groupID: taskGroupData?.taskGroupID,
+              BugID: 0,
+    SprintID: 0,        // ✅ added — required by AdditionalSubTaskListItem
+    SprintGroupID: 0
+              }}
               isSubTask={true}
             />
           )
@@ -198,14 +217,15 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
         maxSize: 200,
         cell: ({ getValue, row: { index }, column: { id }, table }) => {
           // Safely handle null/undefined values by converting to empty string or 0
-          const safeValue = getValue() ?? ''
+          // FIX (TS2322 line ~205): cast to `any` so it satisfies NoInfer<TTValue>
+          const safeValue = (getValue() ?? '') as any
           return (
-            <TaskEffortCell 
-              canEdit={canEdit} 
-              getValue={() => safeValue} 
-              index={index} 
-              id={id} 
-              table={table} 
+            <TaskEffortCell
+              canEdit={canEdit}
+              getValue={() => safeValue}
+              index={index}
+              id={id}
+              table={table}
             />
           )
         },
@@ -225,7 +245,16 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
           return (
             <TaskStatus
               canEdit={canEdit}
-              row={{ ...original, TaskGroupID: taskGroupData?.taskGroupID, TaskID: original?.TaskMasterID }}
+              row={{
+                ...original,
+                TaskGroupID: taskGroupData?.taskGroupID,
+                TaskID: original?.TaskMasterID,
+                // FIX (TS2322 line ~228): AdditionalSubTaskListItem requires groupID & BugID
+                groupID: taskGroupData?.taskGroupID,
+               BugID: 0,
+    SprintID: 0,        // ✅ added — required by AdditionalSubTaskListItem
+    SprintGroupID: 0
+              }}
               refetch={refetchSubTask}
               isSubTask={true}
             />
@@ -414,6 +443,8 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
         setOpen={val => setDeleteOpen(!!val)}
         description={`Subtask '${deleteData?.SubTaskName}' will be deleted`}
         onConfirm={handleDelete}
+        // FIX (TS2741 line ~412): DeleteDialogProps requires `refetch`
+        refetch={refetchSubTask}
       />
       <CreateColumnMenu
         anchorEl={addColumnAnchor}

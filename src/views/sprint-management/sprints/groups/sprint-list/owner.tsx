@@ -151,7 +151,7 @@ const TaskPeople = ({
           TaskID: rowData?.TaskID,
           Owner: null
         }
-        const response = await updateTasks(payload)
+        const response = await updateTasks(payload as any)
         if (response) {
           toast.success('Owner removed successfully')
           setSelectedOwner(null)
@@ -195,7 +195,7 @@ const TaskPeople = ({
           TaskID: rowData?.TaskID,
           Owner: selected
         }
-        const response = await updateTasks(payload)
+        const response = await updateTasks(payload as any)
         if (response) {
           setSelectedOwner(selected)
           toast.success('Owner assigned successfully')

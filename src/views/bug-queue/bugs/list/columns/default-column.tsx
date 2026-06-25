@@ -9,6 +9,8 @@ interface ColumnTextFieldProps {
   index: number
   id: string
   canEdit: boolean
+    onUpdate?: (newValue: string) => Promise<void>   // ADD THIS LINE
+
 }
 
 export const ColumnTextField = ({ table, getValue, index, id, canEdit = true }: ColumnTextFieldProps) => {

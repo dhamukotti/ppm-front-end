@@ -46,11 +46,17 @@ export interface NewTaskData {
     projectTask: string;  // Added category field
 }
 
+interface TeamMember {
+  value: string;
+  label: string;
+  id?: string;
+}
+
 interface NewTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (task: NewTaskData) => void;
-  teamMembers: string[];
+  teamMembers: TeamMember[];
   onTaskCreated?: () => void; 
   onPriorityCreated?: () => void;// ADDED THIS LINE
 }
@@ -64,6 +70,7 @@ interface Priority {
   name: string;
   colorCode: string;
 }
+
 
 // Define Category type
 interface Category {
@@ -741,15 +748,25 @@ const projectTaskID = formData.projectTask || '';
   };
 
   const onCloseModal = () => {
+    // setFormData({
+    //   title: '',
+    //   description: '',
+    //   priority: priorities.length > 0 ? priorities[0].id : '',
+    //   assignee: '',
+    //   dueDate: '',
+    //   tags: [],
+    //   category: categories.length > 0 ? categories[0].boardCategoryID : '',
+    // });
     setFormData({
-      title: '',
-      description: '',
-      priority: priorities.length > 0 ? priorities[0].id : '',
-      assignee: '',
-      dueDate: '',
-      tags: [],
-      category: categories.length > 0 ? categories[0].boardCategoryID : '',
-    });
+  title: '',
+  description: '',
+  priority: priorities.length > 0 ? priorities[0].id : '',
+  assignee: '',
+  dueDate: '',
+  tags: [],
+  category: categories.length > 0 ? categories[0].boardCategoryID : '',
+  projectTask: '', // or null, {}, [], depending on its type
+});
     setTagInput('');
     setSelectedFile(null);
     setSelectedImage(null);
@@ -1158,7 +1175,7 @@ const projectTaskID = formData.projectTask || '';
                       {member}
                     </MenuItem>
                   ))} */}
-                  {teamMembers.map((member, index) => (
+                  {teamMembers.map((member: TeamMember, index: number) => (
                     <MenuItem key={member?.value || member?.id || index} value={member?.value}>
                       {member?.label}
                     </MenuItem>
@@ -1497,7 +1514,7 @@ const projectTaskID = formData.projectTask || '';
               color={tempColor}
               onChange={setTempColor}
               style={{ width: '100%' }}
-              disabled={isCreatingPriority}
+              //disabled={isCreatingPriority}
             />
           </Box>
           

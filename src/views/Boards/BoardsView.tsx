@@ -37,7 +37,7 @@ import {
 import { Icon } from '@iconify/react'
 import { HexColorPicker, HexColorInput } from 'react-colorful'
 import TaskColumn from './TaskColumn'
-import { NewTaskDialog } from '../../views/project/main-screen/Taskboard'
+import { NewTaskDialog } from '../project/main-screen/Taskboard'
 import axios from 'axios'
 import { useAuth } from '@/hooks/useAuth'
 import toast, { Toaster } from 'react-hot-toast'
@@ -231,7 +231,7 @@ const TaskDetailsDialog = ({
       console.error('Download error:', error);
       window.open(task.attachmentLink, '_blank');
       
-      toast.info('Opening file in new tab', {
+      toast.success('Opening file in new tab', {
         position: 'top-center',
         duration: 3000,
         style: {
@@ -1009,8 +1009,16 @@ const fetchTeamMembers = async () => {
       const response = await axios.get(`${Baseurl}/GetBoardTaskList?LoginuserID=${user?.id}`)
       
       if (response.data && Array.isArray(response.data)) {
-        const apiTasks: TaskColumns = {}
-        
+        // const apiTasks: TaskColumns = {
+        //   Todo:[], inProgress:[], review:[], done:[]
+        // }
+         const apiTasks: TaskColumns = {
+        todo: [],
+        inProgress: [],
+        review: [],
+        done: []
+      }
+      
         columns.forEach(col => {
           apiTasks[col.id] = []
         })
@@ -1286,7 +1294,12 @@ useEffect(() => {
         const tasksResponse = await axios.get(`${Baseurl}/GetBoardTaskList?LoginuserID=${selectedUser}`);
         
         if (tasksResponse.data && Array.isArray(tasksResponse.data)) {
-          const userTasks: TaskColumns = {};
+          const userTasks: TaskColumns = {
+             todo: [],
+        inProgress: [],
+        review: [],
+        done: []
+      }
           
           filteredByUserColumns.forEach(col => {
             userTasks[col.id] = [];
@@ -1362,78 +1375,152 @@ useEffect(() => {
       }
     })
 
-    if (taskToMove && sourceColumn !== columnId) {
-      try {
-        const destinationColumn = columns.find(col => col.id === columnId)
-        const destinationCategoryID = destinationColumn?.boardCategoryID
+    // if (taskToMove && sourceColumn !== columnId) {
+    //   try {
+    //     const destinationColumn = columns.find(col => col.id === columnId)
+    //     const destinationCategoryID = destinationColumn?.boardCategoryID
         
-        if (!destinationCategoryID) {
-          throw new Error('Destination category not found')
-        }
+    //     if (!destinationCategoryID) {
+    //       throw new Error('Destination category not found')
+    //     }
 
-        const apiUrl = `${Baseurl}/MoveTaskToanotherCategory?BoardTaskID=${taskToMove.taskID}&LoginuserID=${user?.id}&DestinationCategoryID=${destinationCategoryID}`
+    //     const apiUrl = `${Baseurl}/MoveTaskToanotherCategory?BoardTaskID=${taskToMove.taskID}&LoginuserID=${user?.id}&DestinationCategoryID=${destinationCategoryID}`
         
-        const response = await axios.post(apiUrl)
+    //     const response = await axios.post(apiUrl)
         
-        if (response.data) {
-          const updatedTasks = { ...tasks }
-          updatedTasks[sourceColumn] = updatedTasks[sourceColumn].filter(t => t.id !== taskId)
-          if (!updatedTasks[columnId]) {
-            updatedTasks[columnId] = []
-          }
-          updatedTasks[columnId] = [...updatedTasks[columnId], taskToMove]
-          setTasks(updatedTasks)
+    //     if (response.data) {
+    //       const updatedTasks = { ...tasks }
+    //       updatedTasks[sourceColumn] = updatedTasks[sourceColumn].filter(t => t.id !== taskId)
+    //       if (!updatedTasks[columnId]) {
+    //         updatedTasks[columnId] = []
+    //       }
+    //       updatedTasks[columnId] = [...updatedTasks[columnId], taskToMove]
+    //       setTasks(updatedTasks)
           
-          toast.success('Task moved successfully', {
-            position: 'top-center',
-            duration: 4000,
-            style: {
-              background: 'white',
-              color: 'black',
-              padding: '12px 20px',
-              borderRadius: '12px',
-              boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
-              border: '1px solid rgba(0, 0, 0, 0.08)',
-              maxWidth: '400px',
-              fontSize: '14px',
-              fontWeight: 500,
-            },
-          })
+    //       toast.success('Task moved successfully', {
+    //         position: 'top-center',
+    //         duration: 4000,
+    //         style: {
+    //           background: 'white',
+    //           color: 'black',
+    //           padding: '12px 20px',
+    //           borderRadius: '12px',
+    //           boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
+    //           border: '1px solid rgba(0, 0, 0, 0.08)',
+    //           maxWidth: '400px',
+    //           fontSize: '14px',
+    //           fontWeight: 500,
+    //         },
+    //       })
           
-          await fetchCategories()
-        } else {
-          throw new Error('Failed to move task')
-        }
-      } catch (error: any) {
-        console.error('Error moving task:', error)
+    //       await fetchCategories()
+    //     } else {
+    //       throw new Error('Failed to move task')
+    //     }
+    //   } catch (error: any) {
+    //     console.error('Error moving task:', error)
         
-        let errorMessage = 'Failed to move task'
+    //     let errorMessage = 'Failed to move task'
         
-        if (error.response) {
-          errorMessage = error.response.data?.message || `Server error: ${error.response.status}`
-        } else if (error.request) {
-          errorMessage = 'Network error: No response from server'
-        } else {
-          errorMessage = error.message || 'Unknown error occurred'
-        }
+    //     if (error.response) {
+    //       errorMessage = error.response.data?.message || `Server error: ${error.response.status}`
+    //     } else if (error.request) {
+    //       errorMessage = 'Network error: No response from server'
+    //     } else {
+    //       errorMessage = error.message || 'Unknown error occurred'
+    //     }
         
-        toast.error(errorMessage, {
-          position: 'top-center',
-          duration: 4000,
-          style: {
-            background: 'white',
-            color: 'black',
-            padding: '12px 20px',
-            borderRadius: '12px',
-            boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
-            border: '1px solid rgba(0, 0, 0, 0.08)',
-            maxWidth: '400px',
-            fontSize: '14px',
-            fontWeight: 500,
-          },
-        })
-      }
+    //     toast.error(errorMessage, {
+    //       position: 'top-center',
+    //       duration: 4000,
+    //       style: {
+    //         background: 'white',
+    //         color: 'black',
+    //         padding: '12px 20px',
+    //         borderRadius: '12px',
+    //         boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
+    //         border: '1px solid rgba(0, 0, 0, 0.08)',
+    //         maxWidth: '400px',
+    //         fontSize: '14px',
+    //         fontWeight: 500,
+    //       },
+    //     })
+    //   }
+    // }
+    if (taskToMove && sourceColumn !== columnId) {
+  const movingTask: Task = taskToMove // FIX: explicit const copy resolves 'never' narrowing issue
+
+  try {
+    const destinationColumn = columns.find(col => col.id === columnId)
+    const destinationCategoryID = destinationColumn?.boardCategoryID
+
+    if (!destinationCategoryID) {
+      throw new Error('Destination category not found')
     }
+
+    const apiUrl = `${Baseurl}/MoveTaskToanotherCategory?BoardTaskID=${movingTask.taskID}&LoginuserID=${user?.id}&DestinationCategoryID=${destinationCategoryID}`
+
+    const response = await axios.post(apiUrl)
+
+    if (response.data) {
+      const updatedTasks = { ...tasks }
+      updatedTasks[sourceColumn] = updatedTasks[sourceColumn].filter(t => t.id !== taskId)
+      if (!updatedTasks[columnId]) {
+        updatedTasks[columnId] = []
+      }
+      updatedTasks[columnId] = [...updatedTasks[columnId], movingTask] // FIX: use movingTask instead of taskToMove
+      setTasks(updatedTasks)
+
+      toast.success('Task moved successfully', {
+        position: 'top-center',
+        duration: 4000,
+        style: {
+          background: 'white',
+          color: 'black',
+          padding: '12px 20px',
+          borderRadius: '12px',
+          boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
+          border: '1px solid rgba(0, 0, 0, 0.08)',
+          maxWidth: '400px',
+          fontSize: '14px',
+          fontWeight: 500,
+        },
+      })
+
+      await fetchCategories()
+    } else {
+      throw new Error('Failed to move task')
+    }
+  } catch (error: any) {
+    console.error('Error moving task:', error)
+
+    let errorMessage = 'Failed to move task'
+
+    if (error.response) {
+      errorMessage = error.response.data?.message || `Server error: ${error.response.status}`
+    } else if (error.request) {
+      errorMessage = 'Network error: No response from server'
+    } else {
+      errorMessage = error.message || 'Unknown error occurred'
+    }
+
+    toast.error(errorMessage, {
+      position: 'top-center',
+      duration: 4000,
+      style: {
+        background: 'white',
+        color: 'black',
+        padding: '12px 20px',
+        borderRadius: '12px',
+        boxShadow: '0px 8px 32px rgba(0, 0, 0, 0.12)',
+        border: '1px solid rgba(0, 0, 0, 0.08)',
+        maxWidth: '400px',
+        fontSize: '14px',
+        fontWeight: 500,
+      },
+    })
+  }
+}
   }
 
   const handleFilterClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -3026,7 +3113,7 @@ useEffect(() => {
             variant="contained" 
             color="error" 
             onClick={handleConfirmDeleteCategory}
-            disabled={categoryToDelete && tasks[categoryToDelete.id]?.length > 0}
+            disabled={!!(categoryToDelete && tasks[categoryToDelete.id]?.length > 0)} 
           >
             Delete Category
           </Button>

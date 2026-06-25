@@ -28,7 +28,7 @@ import type { AdditionalColumn } from '@/services/modules/sprint-item/types'
 import { updateSubTask } from '@/services/modules/sub-task'
 import type { AdditionalSubTaskListItem } from '@/services/modules/sub-task/types'
 import { taskFileUpload, updateTasks } from '@/services/modules/task'
-import type { AdditionalValue, SprintItem } from '@/services/modules/sprint-item/types'
+import type {AdditionalValue,  BugQueueListAPI } from '@/services/modules/bug-queue/types'
 import type { TFileUploadMenuItems } from './dynamic-files-menu'
 import { menuItems } from './dynamic-files-menu'
 import toast from 'react-hot-toast'
@@ -46,7 +46,7 @@ const defaultValues: FormValidateType = {
 }
 
 interface DynamicFilesProps {
-  rowData: SprintItem 
+  rowData: BugQueueListAPI 
   refetch: () => void
   isSubTask?: boolean
   dynamicValue?: AdditionalValue

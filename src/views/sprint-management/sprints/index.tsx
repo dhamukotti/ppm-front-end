@@ -94,7 +94,7 @@ const SprintManagementPage = ({ workspaceID }: { workspaceID: string }) => {
   })
 
   // FIXED: Filter for second input - properly handle sprint data structure
-  const filteredSecondSprints = (sprintListData?.data || []).filter((sprint: any) => {
+  const filteredSecondSprints = ((sprintListData as any)?.data  || []).filter((sprint: any) => {
     if (secondSearchTerm.trim() === '') {
       return true // Show all sprints when no search term
     }

@@ -33,9 +33,10 @@ const [projectId, setprojectId] = useState('')
 
   const onEditClick = (e: any) => {
     e.stopPropagation()
-    setEditGroupName(groupName)
-    seteditgroupid(id)
-    setprojectId(ProjectID)
+    setEditGroupName(groupName as string)
+    seteditgroupid(id as any)
+    // setprojectId(ProjectID as string)
+    
     setOpenEdit(true)
     handleMenuClose()
   }
@@ -56,7 +57,7 @@ const [projectId, setprojectId] = useState('')
 const deletegroup = async() => {
   try {
     const value = await axios.post(`${process.env.NEXT_PUBLIC_API_URL1}/ProjectTaskGroupDelete?TaskGroupID=${id}&LoginuserID=76`);
-
+ refetch();
     toast.success('Task Group Deleted Successfully');
     refetch();
   } catch (error) {

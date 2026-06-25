@@ -374,7 +374,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
     
     return allColumns.filter(column => {
       const columnId = column.id as string;
-      const accessorKey = column.accessorKey as string;
+      // const accessorKey = column.accessorKey as string;
       
       
       // Always show select column
@@ -427,7 +427,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
 
           try {
             const value1 = localStorage.getItem('userData')
-            const data1 = JSON.parse(value1);
+            const data1 = JSON.parse(value1 as any);
 
             const bodyvalue = {
               Sprintname: value,
@@ -439,7 +439,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
             }
 
             const response = await UpdateSrpintItem(bodyvalue)
-            if (response) {
+            if (response as any) {
               sprintListApi?.refetch()
             }
           } catch (error) {
@@ -460,7 +460,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
 
           try {
             const value1 = localStorage.getItem('userData')
-            const data = JSON.parse(value1);
+            const data = JSON.parse(value1 as any);
 
             // ✅ FIX: read the latest Name from localData which was already updated optimistically
             // previously this used filteredSprintData?.[rowIndex]?.Name which was stale
@@ -479,7 +479,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
             }
 
             const response = await UpdateSrpintItem(bodyvalue)
-            if (response) {
+            if (response as any) {
               sprintListApi?.refetch()
             }
           } catch (error) {
@@ -491,7 +491,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
         if (value?.additionalColumnID && filteredSprintData?.[rowIndex]?.SprintID) {
           try {
             const value1 = localStorage.getItem('userData')
-            const data = JSON.parse(value1);
+            const data = JSON.parse(value1 as any);
 
             const bodyvalue = {
               ...value,
@@ -502,7 +502,7 @@ const filterDynamicValue = (columnId: string, colvalueList: any[], sprintId: num
             }
 
             const response = await UpdateSrpintItem(bodyvalue)
-            if (response) {
+            if (response as any) {
               sprintListApi?.refetch()
             }
           } catch (error) {

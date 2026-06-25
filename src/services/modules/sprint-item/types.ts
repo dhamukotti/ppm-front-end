@@ -1,8 +1,15 @@
 export interface SprintItem {
   SprintID: number
   Name: string
+  sprintID:string
   WorkSpaceID: number
+  groupID:number
+  additionalColumnID:string
+  sprintGroupID:number
+  StatusID:number
   SprintGroupID: number
+  TaskGroupID:number
+  BugID:number
   Goals: string
   SprintStatus: 'Not Started' | 'Active' | 'Paused' | 'Completed'
   SprintTimelineStart: Date
@@ -19,10 +26,12 @@ export interface SprintItem {
 }
 export interface AdditionalValue {
   DynamicID: number
+  additionalColumnID:number
   DynamicColumnValues?: string
   Columntype: number
   CreateDate: string
   CreateBy: number
+  dynamicDropdownValueList:any
   DeletedDate: any
   DeletedBy: any
   IsDelete: number
@@ -103,6 +112,7 @@ export interface ColumnType {
 export interface AdditionalColumn {
   AdditionalColumnID: number
   ColumnName: string
+  additionalColumnID:string
   AdditionalColumnTypeID: number
   CreateDate: string
   CreateBy: number

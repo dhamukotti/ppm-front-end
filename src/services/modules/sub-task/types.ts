@@ -63,5 +63,10 @@ export interface SubTaskColumnType {
 
 export interface AdditionalSubTaskListItem extends SubTaskListItemType {
   TaskGroupID: number
+  groupID:number
+SprintID:number
+SprintGroupID:number
+StatusID:number
+  BugID:number
   TaskID: number
 }

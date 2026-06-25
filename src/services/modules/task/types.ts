@@ -8,6 +8,8 @@ export interface TaskListItemType {
   PriorityID: number
   TimelineStartDate: string
   TimelineEndDate: string
+  groupID:number
+  BugID:number
   CreateDate: string
   CreateBy: number
   TaskGroupID: number

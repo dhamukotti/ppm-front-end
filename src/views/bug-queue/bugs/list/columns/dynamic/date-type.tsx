@@ -6,15 +6,15 @@ import moment from 'moment'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
-import type { AdditionalColumn } from '@/services/modules/sprint-item/types'
+import type { AdditionalColumn } from '@/services/modules/bug-queue/types'
 import { updateSubTask } from '@/services/modules/sub-task'
 import { updateTasks } from '@/services/modules/task'
-import type { SprintItem } from '@/services/modules/sprint-item/types'
+import type { BugQueueListAPI } from '@/services/modules/bug-queue/types'
 import CustomButton from '@components/button'
 import { useAuth } from '@/hooks/useAuth'
 
 interface DynamicDateProps {
-  rowData: SprintItem 
+  rowData: BugQueueListAPI 
   refetch: () => void
   isSubTask?: boolean
   dynamicValue?: any
@@ -165,8 +165,8 @@ const DynamicDate = ({
       const baseUrl = `${process.env.NEXT_PUBLIC_API_URL1}/InsertBugDynamicValues`;
       
       const url = new URL(baseUrl);
-      url.searchParams.append('DynamicColumnID', columnData?.additionalColumnID);
-      url.searchParams.append('LoginuserID', user?.id);
+      url.searchParams.append('DynamicColumnID', columnData?.additionalColumnID ? columnData?.additionalColumnID : "0");
+      url.searchParams.append('LoginuserID', String(user?.id));
       url.searchParams.append('BugID', rowData?.BugID || rowData?.BugID || '');
       url.searchParams.append('GroupID', rowData?.groupID || rowData?.groupID || '');
       url.searchParams.append('DynamicValue', moment(selectedDate).format('LLL'));

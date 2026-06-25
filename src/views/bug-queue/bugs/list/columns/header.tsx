@@ -45,19 +45,19 @@ const DynamicTableHeader = ({
   const initialValue = useMemo(() => column?.colname || column?.ColumnName, [column?.colname, column?.ColumnName])
   // ** State
   const { user } = useAuth()
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState<any>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [value, setValue] = useState(initialValue)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [columns, setColumns] = useState([])
-  const [selectedColumn, setSelectedColumn] = useState(null)
+  const [columns, setColumns] = useState<any[]>([])
+  const [selectedColumn, setSelectedColumn] = useState<any>(null)
   const { selected } = useWorkspace()
 
   // ✅ State to preserve column data for delete/edit even after menu closes
-  const [activeColumn, setActiveColumn] = useState(null)
+  const [activeColumn, setActiveColumn] = useState<any>(null)
   
   // ✅ State for showing bugs data
-  const [bugsMenuAnchor, setBugsMenuAnchor] = useState(null)
+  const [bugsMenuAnchor, setBugsMenuAnchor] = useState<any>(null)
 
   // ✅ Get groupID from groupData (first item's groupID)
   const groupID = useMemo(() => {
@@ -273,6 +273,7 @@ const DynamicTableHeader = ({
           setOpen={val => setDeleteOpen(!!val)}
           title={getDeleteTitle()}
           onConfirm={handleDelete}
+          refetch={()=>{}}
           description={'You wont be able to revert this action'}
         />
 
@@ -401,6 +402,8 @@ const DynamicTableHeader = ({
         setOpen={val => setDeleteOpen(!!val)}
         title={getDeleteTitle()}
         onConfirm={handleDelete}
+                  refetch={()=>{}}
+
         description={'You wont be able to revert this action'}
       />
 

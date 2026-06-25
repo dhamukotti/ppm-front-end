@@ -50,6 +50,7 @@ export interface CreatedBy {
 
 export interface AdditionalColumn {
   AdditionalColumnID: number
+  additionalColumnID:number
   ColumnName: string
   AdditionalColumnTypeID: number
   CreateDate: string

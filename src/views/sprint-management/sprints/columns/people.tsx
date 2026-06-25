@@ -454,7 +454,7 @@ const TaskPeople = ({
                   alignItems: 'center'
                 }}
               >
-                <Typography variant='white' fontWeight={500}>
+                <Typography color='white' fontWeight={500}>
                   Assigned Users ({processedDynamicValue?.length})
                 </Typography>
                 <IconButton size='small' onClick={handleUserListClose} sx={{ color: 'white' }}>

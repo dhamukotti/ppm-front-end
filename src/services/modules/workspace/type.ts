@@ -3,9 +3,12 @@ export interface WorkspaceListItem {
   WorkspaceName: string
   OrganizationID: number
   CreateDate: string
-  CreatedBy: number
+  CreatedBy: string
   DeletedDate: any
   Deletedby: any
+  CreatedDate:string
+  ModifiedDate:string
+  ModifiedBy:any
   IsDelete: number
   UpdatedBy: any
   userProjects: UserProject[]

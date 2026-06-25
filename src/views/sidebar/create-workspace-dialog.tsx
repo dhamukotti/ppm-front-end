@@ -73,6 +73,7 @@ const body =
   workspaceName:values.workspaceName,
    organizationID: user?.userData.OrganizationID
 }
+console.log(body);
 
       await addWorkspace(body)
     } else {

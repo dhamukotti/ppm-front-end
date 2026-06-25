@@ -54,12 +54,20 @@ const WorkspaceProvider: FC<WorkspaceProviderProps> = ({ children }) => {
   const pathname = usePathname()
 
   // ** API calls
-  const { data, refetch } = useQuery({
-    queryKey: ['workspaces', auth?.user?.userData?.UserID, auth?.profile],
-    queryFn: () => (auth?.profile === 'projects' ? fetchWorkspaceList() : fetchSprintWorkspaceList()),
-    enabled: !!auth?.user
-  })
+  // const { data, refetch } = useQuery({
+  //   queryKey: ['workspaces', auth?.user?.userData?.UserID, auth?.profile],
+  //   queryFn: () => (auth?.profile === 'projects' ? fetchWorkspaceList() : fetchSprintWorkspaceList()),
+  //   enabled: !!auth?.user
+  // })
 
+  const { data, refetch } = useQuery({
+  queryKey: ['workspaces', auth?.user?.userData?.UserID, auth?.profile],
+  queryFn: () =>
+    (auth?.profile === 'projects'
+      ? fetchWorkspaceList()
+      : fetchSprintWorkspaceList()) as Promise<WorkspaceListItem[]>,
+  enabled: !!auth?.user
+})
   // ** States
   const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceListItem | null>(null)
 

@@ -118,6 +118,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
         setOpen={val => setDeleteOpen(!!val)}
         title={`Delete '${column?.ColumnName}' column ?`}
         onConfirm={handleDelete}
+        refetch={()=>{}}
         description={'You wont be able to revert this action'}
       />
 

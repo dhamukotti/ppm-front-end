@@ -27,9 +27,19 @@ const DeleteBugsComponent = ({ showCard, groupid,workspaceid, selectedRows, setS
   const showSelected = useMemo(() => Object?.keys(selectedRows)?.length !== 0, [selectedRows])
   console.log(showSelected, 'showSelected');
 
+  // const handleDelete = async () => {
+  //   // Use values directly as it contains all the selected bug objects with their full data
+  //   const finalArray = values?.map((bug: any) => bug?.BugID) || 
+  //     data?.filter((i, idx) => Object?.keys(selectedRows)?.some(k => +k === +idx))?.map(t => t?.BugID)
+
+  //   await deleteBugApi(finalArray)
+  //   await refetch()
+  //   setDeleteOpen(false)
+  //   setSelectedRows({})
+  // }
   const handleDelete = async () => {
-    // Use values directly as it contains all the selected bug objects with their full data
-    const finalArray = values?.map((bug: any) => bug?.BugID) || 
+    // Use selectedRows directly as it contains all the selected bug objects with their full data
+    const finalArray = selectedRows?.map((bug: any) => bug?.BugID) || // FIX: replaced undefined 'values' with 'selectedRows'
       data?.filter((i, idx) => Object?.keys(selectedRows)?.some(k => +k === +idx))?.map(t => t?.BugID)
 
     await deleteBugApi(finalArray)
@@ -74,6 +84,7 @@ const DeleteBugsComponent = ({ showCard, groupid,workspaceid, selectedRows, setS
         setOpen={val => setDeleteOpen(!!val)}
         description={`All selected rows will be permanently deleted! You cannot revert once deleted.`}
         onConfirm={handleDelete}
+        refetch={()=>{}}
       />
     </Grid2>
   )

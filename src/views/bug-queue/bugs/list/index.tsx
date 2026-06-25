@@ -32,7 +32,7 @@ import {
 } from '@mui/material'
 import CustomButton from '@/components/button'
 
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, TableMeta } from '@tanstack/react-table'
 import { flexRender, getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table'
 import IconifyIcon from '@/components/icon'
 import { useBugQueue } from '@/context/bug-queue-context'
@@ -455,6 +455,31 @@ const SprintTaskSelectorDialog = ({
   )
 }
 
+// ─── Define Props Interface ────────────────────────────────────────────────
+interface BugGroupTableProps {
+  groupData: any[];
+  dynamicColumns: any[];
+  colValueList: any[];
+  selectedRows: any;
+  setSelectedRows: any;
+  workspaceID: any;
+  bugGroupID: any;
+  sprintColumnVisibility: any;
+  user: any;
+  refetch: any;
+  refetchProject: any;
+  users: any[];
+  fetchBugList: any;
+  existingSprintTasks: any[];
+}
+
+interface BugListProps {
+  selectedRows: any;
+  setSelectedRows: any;
+  workspaceID: any;
+  bugGroupID: any;
+}
+
 // ─── BugGroupTable — renders ONE group's table ────────────────────────────
 const BugGroupTable = ({
   groupData,
@@ -471,7 +496,7 @@ const BugGroupTable = ({
   users,
   fetchBugList,
   existingSprintTasks,
-}: any) => {
+}: BugGroupTableProps) => {
   const [adding, setAdding] = useState(false)
   const [addColumnAnchor, setAddColumnAnchor] = useState<any>(null)
   const [showSprintSelector, setShowSprintSelector] = useState(false)
@@ -709,8 +734,8 @@ const BugGroupTable = ({
           return (
             <ColumnTextField
               canEdit={true}
-              getValue={() => value || ''}
-              index={index}
+        getValue= {() => (value || "") as any  }          
+          index={index}
               id={id}
               table={table}
             />
@@ -734,7 +759,9 @@ const BugGroupTable = ({
           return (
             <ColumnTextField
               canEdit={true}
-              getValue={() => value || ''}
+              // getValue={() => value || ''}
+                      getValue= {() => (value || "") as any  }          
+
               index={index}
               id={id}
               table={table}
@@ -777,7 +804,8 @@ const BugGroupTable = ({
         maxSize: 200,
         header: () => <Typography variant='body2' fontWeight={800}>Time until resolution</Typography>,
         cell: ({ row: { original } }) => (
-          <TimeResolutionColumn bug={original} refetch={fetchBugList} workspaceID={workspaceID} userID={user?.id} />
+          // <TimeResolutionColumn bug={original} refetch={fetchBugList} workspaceID={workspaceID} userID={user?.id} />
+                    <TimeResolutionColumn bug={original} refetch={fetchBugList} />
         )
       },
       {
@@ -804,11 +832,11 @@ const BugGroupTable = ({
         header: () => <Typography variant='body2' fontWeight={800}>Status</Typography>,
         cell: ({ row: { original } }) => (
           <TaskStatus
-            row={original}
-            refetch={refetch}
-            canEdit={true}
-            workspaceID={workspaceID}
-            onStatusChange={handleUpdateStatus}
+            // row={original}
+            // refetch={refetch}
+            // canEdit={true}
+            // workspaceID={workspaceID}
+            // onStatusChange={handleUpdateStatus}
           />
         )
       }
@@ -848,11 +876,12 @@ const BugGroupTable = ({
             />
           )
         },
-        cell: ({ row: { original } }) => {
+        cell: ({ row: { original } }: any) => {
           const dynamicValue = getDynamicValueForBug(original?.BugID, columnId)
           return (
             <BugDynamicCell
-              getValue={() => null}
+              // getValue={() => null}
+getValue={() => null as any}
               columnItem={column}
               index={0}
               row={original}
@@ -877,30 +906,60 @@ const BugGroupTable = ({
     })
   }, [allColumns, sprintColumnVisibility])
 
-  // ── Table instance (identical to original) ───────────────────────────────
-  const table = useReactTable({
-    data: groupData,
-    columns: visibleColumns,
-    state: { rowSelection: selectedRows },
-    enableRowSelection: true,
-    getCoreRowModel: getCoreRowModel(),
-    onRowSelectionChange: setSelectedRows,
-    getPaginationRowModel: getPaginationRowModel(),
-    meta: {
-      updateData: async (rowIndex: number, columnId: string, value: string) => {
-        if (columnId === 'BugName' && groupData[rowIndex]?.BugID) {
-          const currentBug = groupData[rowIndex]
-          if (currentBug?.BugName !== value) await handleUpdateBugName(currentBug?.BugID, value)
+  
+  // const table = useReactTable({
+  //   data: groupData,
+  //   columns: visibleColumns,
+  //   state: { rowSelection: selectedRows },
+  //   enableRowSelection: true,
+  //   getCoreRowModel: getCoreRowModel(),
+  //   onRowSelectionChange: setSelectedRows,
+  //   getPaginationRowModel: getPaginationRowModel(),
+  //   meta: {
+  //     updateData: async (rowIndex: number, columnId: string, value: unknown) => {
+  //       const stringValue = typeof value === 'string' ? value : String(value ?? '')
+
+  //       if (columnId === 'BugName' && groupData[rowIndex]?.BugID) {
+  //         const currentBug = groupData[rowIndex]
+  //         if (currentBug?.BugName !== stringValue) await handleUpdateBugName(currentBug?.BugID, stringValue)
+  //       }
+  //       if (columnId === 'BugDescription' && groupData[rowIndex]?.BugID) {
+  //         const currentBug = groupData[rowIndex]
+  //         if (currentBug?.BugDescription !== stringValue) await handleUpdateBugDescription(currentBug?.BugID, stringValue)
+  //       }
+  //     }
+  //   } as TableMeta<any>
+  // })
+
+  // ── Add Bug with Sprint Selection ─────────────────────────────────────────
+  // ── Table instance ─────────────────────────────────────────────────────
+const table = useReactTable({
+  data: groupData,
+  columns: visibleColumns,
+  state: { rowSelection: selectedRows },
+  enableRowSelection: true,
+  getCoreRowModel: getCoreRowModel(),
+  onRowSelectionChange: setSelectedRows,
+  getPaginationRowModel: getPaginationRowModel(),
+  meta: {
+    updateData: async (rowIndex: number, columnId: string, value: unknown) => {
+      const stringValue = typeof value === 'string' ? value : String(value ?? '')
+
+      if (columnId === 'BugName' && groupData[rowIndex]?.BugID) {
+        const currentBug = groupData[rowIndex]
+        if (currentBug?.BugName !== stringValue) {
+          await handleUpdateBugName(currentBug?.BugID, stringValue)
         }
-        if (columnId === 'BugDescription' && groupData[rowIndex]?.BugID) {
-          const currentBug = groupData[rowIndex]
-          if (currentBug?.BugDescription !== value) await handleUpdateBugDescription(currentBug?.BugID, value)
+      }
+      if (columnId === 'BugDescription' && groupData[rowIndex]?.BugID) {
+        const currentBug = groupData[rowIndex]
+        if (currentBug?.BugDescription !== stringValue) {
+          await handleUpdateBugDescription(currentBug?.BugID, stringValue)
         }
       }
     }
-  })
-
-  // ── Add Bug with Sprint Selection ─────────────────────────────────────────
+  } as TableMeta<any>
+})
   const handleBugCreate = () => {
     setShowSprintSelector(true)
   }

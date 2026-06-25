@@ -157,7 +157,11 @@ export const Deleteprojectgroup = async (
   return callApi({
     uriEndPoint: taskGroup.Deleteprojectgroup,
     useSecondApi: true,
-    query: `TaskGroupID=${TaskGroupID}&&LoginuserID=${LoginuserID}` // Raw query string
+ query: { 
+      TaskGroupID, 
+      LoginuserID 
+    }
+  //  query:`TaskGroupID=${TaskGroupID}&&LoginuserID=${LoginuserID}` // Raw query string
   }).then(res => {
       toast.success(res?.message ?? 'Task Group Deleted Successfully')
       return res

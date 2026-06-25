@@ -32,8 +32,10 @@ const TaskTextValues = ({ table, rowData, getValue, index, id, columnData, dynam
   const callInsertDynamicValuesAPI = async (newValue: string) => {
     const DynamicColumnID = columnData?.additionalColumnID;
     const LoginuserID = user?.id;
-    const SprintID = rowData?.SprintID;
-    const SprintGroupID = rowData?.SprintGroupID;
+    // const SprintID = rowData?.SprintID as string;
+    // const SprintGroupID = rowData?.SprintGroupID;
+    const SprintID = (rowData as any)?.SprintID as string;
+const SprintGroupID = (rowData as any)?.SprintGroupID;
     const DynamicValue = newValue;
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL1;
 
@@ -69,7 +71,8 @@ const TaskTextValues = ({ table, rowData, getValue, index, id, columnData, dynam
   }
 
   useEffect(() => {
-    setValue(initialValue?.dynamicColumnValues ?? '-')
+    // setValue(initialValue?.dynamicColumnValues ?? '-')
+    setValue((initialValue as any)?.dynamicColumnValues ?? '-')
   }, [initialValue])
 
   return canEdit ? (

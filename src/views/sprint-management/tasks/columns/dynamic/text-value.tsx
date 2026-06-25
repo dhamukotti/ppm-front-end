@@ -32,12 +32,12 @@ const TaskTextValues = ({ table, rowData, getValue, index, id, columnData, dynam
   const callInsertDynamicValuesAPI = async (newValue: string) => {
     const DynamicColumnID = columnData?.additionalColumnID;
     const LoginuserID = user?.id;
-    const Taskid = rowData?.taskID;
+    const Taskid = (rowData as any)?.taskID;
   //  const groupid = rowData.gr
     const DynamicValue = newValue;
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL1;
 
-    const apiUrl = `${BASE_URL}/InsertDynamicSprintTaskValues?DynamicColumnID=${DynamicColumnID}&LoginuserID=${LoginuserID}&TaskID=${Taskid}&GroupID=${rowData?.taskGroupID}&DynamicValue=${encodeURIComponent(DynamicValue)}`;
+    const apiUrl = `${BASE_URL}/InsertDynamicSprintTaskValues?DynamicColumnID=${DynamicColumnID}&LoginuserID=${LoginuserID}&TaskID=${Taskid}&GroupID=${(rowData as any)?.taskGroupID}&DynamicValue=${encodeURIComponent(DynamicValue)}`;
 
     try {
       const response = await axios.post(apiUrl);
@@ -68,7 +68,7 @@ const TaskTextValues = ({ table, rowData, getValue, index, id, columnData, dynam
   }
 
   useEffect(() => {
-    setValue(initialValue?.dynamicColumnValues ?? '-')
+    setValue((initialValue as any)?.dynamicColumnValues ?? '-')
   }, [initialValue])
 
   return canEdit ? (

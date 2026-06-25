@@ -56,7 +56,7 @@ interface UpdatePriorityPayload {
   PriorityID: number;
   GroupID: number;
   Priorityname: string;
-  LoginuserID: number;
+  LoginuserID: number | undefined;
   IsDelete: boolean;
   Colorcode: string;
 }
@@ -71,7 +71,7 @@ interface UpdatePriorityResponse {
 interface CreateTaskPriorityPayload {
   Priorityname: string;
   TaskID: number;
-  LoginuserID: number;
+  LoginuserID: number | undefined;
   GroupID: number;
   Colorcode: string;
 }
@@ -92,7 +92,7 @@ interface SprintTaskUpdatePayload {
   ActualSP?: number;
   isunplan?: boolean;
   StatusID?: number;
-  PriorityID?: number;
+  PriorityID?: number | null;
 }
 
 interface SprintTaskUpdateResponse {
@@ -361,13 +361,13 @@ const PriorityMenuItem = ({
         const loginuserID = user?.id;
 
         // Get current task data from row to preserve existing values
-        const currentTaskName = row?.Taskname || row?.taskname || row?.Name || '';
-        const currentDescription = row?.Description || row?.description || '';
-        const currentOwnerID = row?.OwnerID || row?.ownerID || row?.OwnerId || loginuserID;
-        const currentEstimatedSP = row?.EstimatedSP || row?.estimatedSP || row?.EstimateSP || 0;
-        const currentActualSP = row?.ActualSP || row?.actualSP || row?.ActualSpent || 0;
-        const currentIsUnplan = row?.isunplan || row?.IsUnplan || false;
-        const currentStatusID = row?.StatusID || row?.statusID || row?.StatusId || 1;
+        const currentTaskName = (row as any)?.Taskname || (row as any)?.taskname || (row as any)?.Name || '';
+        const currentDescription = (row as any)?.Description || (row as any)?.description || '';
+        const currentOwnerID = (row as any)?.OwnerID || (row as any)?.ownerID || (row as any)?.OwnerId || loginuserID;
+        const currentEstimatedSP = (row as any)?.EstimatedSP || (row as any)?.estimatedSP || (row as any)?.EstimateSP || 0;
+        const currentActualSP = (row as any)?.ActualSP || (row as any)?.actualSP || (row as any)?.ActualSpent || 0;
+        const currentIsUnplan = (row as any)?.isunplan || (row as any)?.IsUnplan || false;
+        const currentStatusID = (row as any)?.StatusID || (row as any)?.statusID || (row as any)?.StatusId || 1;
 
         // Determine priority ID to send
         let priorityIDToSend;
@@ -428,7 +428,7 @@ const PriorityMenuItem = ({
             event.preventDefault();
             event.stopPropagation();
             
-            const currentPriorityId = row?.PriorityID || 
+            const currentPriorityId = (row as any)?.PriorityID || 
                                      dynamicValue?.Priority?.PriorityID || 
                                      dynamicValue?.priorityID
             
@@ -603,8 +603,8 @@ const TaskPriority = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTa
     }
 
     // Check nested Priority object first, then fall back to flat priorityname field
-    return row?.Priority?.PriorityName || (row as any)?.priorityname || null
-  }, [columnData, dynamicValue, row?.Priority?.PriorityName, (row as any)?.priorityname])
+    return (row as any)?.Priority?.PriorityName || (row as any)?.priorityname || null
+  }, [columnData, dynamicValue, (row as any)?.Priority?.PriorityName, (row as any)?.priorityname])
 
   // FIXED: colorCode now also reads flat colorcode field and looks up by PriorityID from row
   const colorCode = useMemo(() => {
@@ -645,7 +645,7 @@ const TaskPriority = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTa
     }
 
     // Check nested Priority object first, then flat colorcode field
-    const directColorcode = row?.Priority?.Colorcode || (row as any)?.colorcode
+    const directColorcode = (row as any)?.Priority?.Colorcode || (row as any)?.colorcode
     if (directColorcode) return directColorcode
 
     // Fall back to looking up by PriorityID in priorityList
@@ -662,7 +662,7 @@ const TaskPriority = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTa
     }
 
     return null
-  }, [columnData, dynamicValue, row?.Priority?.Colorcode, (row as any)?.colorcode, (row as any)?.PriorityID, (row as any)?.priorityID, priorityList, dynamicPriority])
+  }, [columnData, dynamicValue, (row as any)?.Priority?.Colorcode, (row as any)?.colorcode, (row as any)?.PriorityID, (row as any)?.priorityID, priorityList, dynamicPriority])
 
   const handleOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (canEdit) {
@@ -696,7 +696,7 @@ const TaskPriority = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTa
     setAnchorEl(null)
   }
 
-  const handleDeleteClick = (item: ProjectPriorityList) => {
+  const handleDeleteClick = (item?: ProjectPriorityList, row?: any) => {
     if (!item?.PriorityID || item.PriorityID === 0) return;
     setPriorityToDelete(item);
     setDeleteDialogOpen(true);

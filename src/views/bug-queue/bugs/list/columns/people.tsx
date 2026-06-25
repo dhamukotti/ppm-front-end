@@ -23,7 +23,7 @@ import { debounce } from 'lodash'
 import axios from 'axios'
 import { useProject } from '@/context/project-context'
 import type { ProjectUsers, User } from '@/services/modules/invite/types'
-import type { AdditionalColumn } from '@/services/modules/project/types'
+import type { AdditionalColumn } from '@/services/modules/bug-queue/types'
 import { updateSubTask } from '@/services/modules/sub-task'
 import type { AdditionalSubTaskListItem } from '@/services/modules/sub-task/types'
 import { updateTasks } from '@/services/modules/task'
@@ -455,7 +455,7 @@ const TaskPeople = ({
                   alignItems: 'center'
                 }}
               >
-                <Typography variant='white' fontWeight={500}>
+                <Typography color='white' fontWeight={500}>
                   Assigned Users ({processedDynamicValue?.length})
                 </Typography>
                 <IconButton size='small' onClick={handleUserListClose} sx={{ color: 'white' }}>

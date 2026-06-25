@@ -55,7 +55,7 @@ interface SprintTaskManagementProviderProps {
   groupID: string
 }
 
-const fetchTaskDynamicColumns = async (loginUserID: string, groupID: string) => {
+const fetchTaskDynamicColumns = async (loginUserID: number, groupID: string) => {
   const response = await axios.get(
     `${process.env.NEXT_PUBLIC_API_URL1}/SprintTaskGetDynamicColumList`,
     {
@@ -70,7 +70,7 @@ const fetchTaskDynamicColumns = async (loginUserID: string, groupID: string) => 
 
 const SprintTaskManagementProvider = ({ children, workspaceID, groupID }: SprintTaskManagementProviderProps) => {
   const { user } = useAuth()
-  const loginUserID = user?.id || '76'
+  const loginUserID = user?.id || 0
 
   const { data = [], refetch } = useQuery({
     queryKey: ['sprint-list-basic', workspaceID],

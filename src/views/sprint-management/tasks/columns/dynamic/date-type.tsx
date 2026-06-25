@@ -209,10 +209,10 @@ const DynamicDate = ({
       const baseUrl = `${process.env.NEXT_PUBLIC_API_URL1}/InsertDynamicSprintTaskValues`;
       
       const url = new URL(baseUrl);
-      url.searchParams.append('DynamicColumnID', columnData?.additionalColumnID);
-      url.searchParams.append('LoginuserID', user?.id);
-      url.searchParams.append('TaskID', rowData?.taskID || rowData?.taskID || '');
-      url.searchParams.append('GroupID', rowData?.taskGroupID || rowData?.taskGroupID || '');
+      url.searchParams.append('DynamicColumnID', (columnData as any)?.additionalColumnID );
+      url.searchParams.append('LoginuserID', String(user?.id));
+      url.searchParams.append('TaskID', (rowData as any)?.taskID || (rowData as any)?.taskID || '');
+      url.searchParams.append('GroupID', (rowData as any)?.taskGroupID || (rowData as any)?.taskGroupID || '');
       url.searchParams.append('DynamicValue', selectedDate || '');
 
       const response = await axios.post(url.toString(), null, {

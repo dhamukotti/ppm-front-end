@@ -37,8 +37,8 @@ export const IsUnplannedSelector = ({ value, canEdit, onUpdate }: IsUnplannedSel
     return (
       <FormControl size="small" sx={{ minWidth: 100 }}>
         <Select
-          value={selectedValue}
-          onChange={(e) => handleChange(e.target.value === 'true' || e.target.value === true)}
+          value={selectedValue ? 'true' : 'false'}
+          onChange={(e) => handleChange(e.target.value === 'true')}
           onBlur={handleBlur}
           autoFocus
           size="small"
@@ -50,8 +50,8 @@ export const IsUnplannedSelector = ({ value, canEdit, onUpdate }: IsUnplannedSel
             }
           }}
         >
-          <MenuItem value={true}>Yes</MenuItem>
-          <MenuItem value={false}>No</MenuItem>
+          <MenuItem value={'true'}>Yes</MenuItem>
+          <MenuItem value={'false'}>No</MenuItem>
         </Select>
       </FormControl>
     );

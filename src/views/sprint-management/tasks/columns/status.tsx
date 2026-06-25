@@ -244,8 +244,8 @@ interface StatusMenuItemProps {
   item: ProjectStatusList
   row: SprintItem | AdditionalSubTaskListItem | TaskListItemType
   handleClose: () => void
-  handleEdit?: (item?: ProjectStatusList) => void
-  handleDelete?: (item?: ProjectStatusList, row?: any) => void
+  handleEdit?: (item: ProjectStatusList) => void
+  handleDelete?: (item: ProjectStatusList, row?: any) => void
   refetch: () => void
   columnData?: AdditionalColumn
   dynamicValue?: any
@@ -288,8 +288,8 @@ const StatusMenuItem = ({
         const loginuserID = user?.id;
 
         // ✅ FIXED: Use taskID and taskGroupID (same as non-dynamic branch)
-        const taskID = row?.taskID || row?.TaskID;
-        const groupID = row?.taskGroupID || row?.TaskGroupID;
+        const taskID = (row as any)?.taskID || (row as any)?.TaskID;
+        const groupID = (row as any)?.taskGroupID || row?.TaskGroupID;
 
         let dynamicValueToSend;
 
@@ -329,8 +329,8 @@ const StatusMenuItem = ({
       // For non-dynamic columns, create task status using taskID and taskGroupID from row
       try {
         // Get taskID and taskGroupID from row data
-        const taskID = row?.taskID || row?.TaskID || row?.ID;
-        const groupID = row?.taskGroupID || row?.TaskGroupID || row?.GroupID;
+        const taskID = (row as any)?.taskID || (row as any)?.TaskID || (row as any)?.ID;
+        const groupID = (row as any)?.taskGroupID || row?.TaskGroupID || (row as any)?.GroupID;
         const loginuserID = user?.id;
 
         // Only create task status if we have all required data and it's not the "None" option
@@ -500,10 +500,10 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
 
   // Update the useQuery to use the new API with taskID and groupID from row
   const { data: dynamicStatus, refetch: refetchStatusList } = useQuery({
-    queryKey: ['status-lookup-list', row?.taskID, row?.taskGroupID, user?.id],
+    queryKey: ['status-lookup-list', (row as any) ?.taskID, (row as any)?.taskGroupID, user?.id],
     queryFn: () => {
-      const taskID = row?.taskID || row?.TaskID;
-      const groupID = row?.taskGroupID || row?.TaskGroupID;
+      const taskID = (row as any)?.taskID || row?.TaskID;
+      const groupID = (row as any)?.taskGroupID || row?.TaskGroupID;
       const loginuserID = user?.id;
       
       if (taskID && groupID && loginuserID) {
@@ -511,16 +511,19 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
       }
       return Promise.resolve([]);
     },
-    enabled: !!row?.taskID || !!row?.TaskID,
+    enabled: !!(row as any)?.taskID || !!row?.TaskID,
     select: (data) => {
       // Transform the API response to match ProjectStatusList format
       return data.map((item: StatusLookupItem) => ({
         StatusID: item.statusID,
         Statusname: item.statusname,
         Colorcode: item.colorcode,
-        IsDefault: false,
-        TaskgroupID: null
-      }));
+        IsDefault: 0,
+        TaskgroupID: 0,
+        CreatedBy: 0,
+        IsDelete: 0,
+        CreateDate: ""
+      })) as ProjectStatusList[];
     }
   })
 
@@ -652,15 +655,19 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
   const onSubmit = async (data: FormValidateType) => {
   if (isEdit) {
     // Get TaskID and GroupID from row data
-    const taskID = row?.taskID || row?.TaskID;
-    const groupID = row?.taskGroupID || row?.TaskGroupID;
+    const taskID = (row as any)?.taskID || row?.TaskID;
+    const groupID = (row as any)?.taskGroupID || row?.TaskGroupID;
+    const loginuserID = user?.id;
     
     const response = await updateStatus({
       StatusID: parseInt(isEdit),
       TaskID: taskID,      // Add this
+      LoginuserID: loginuserID as number,
       GroupID: groupID,    // Add this
       Statusname: data.Statusname,
-      Colorcode: data.Colorcode
+      Colorcode: data.Colorcode,
+      
+
     });
 
     // if (response?.status) {
@@ -671,14 +678,14 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
     // }
   } else {
     // FIXED: Use createTaskStatus with taskID and groupID from row data
-    const taskID = row?.taskID || row?.TaskID
-    const groupID = row?.taskGroupID || row?.TaskGroupID
+    const taskID = (row as any)?.taskID || row?.TaskID
+    const groupID = (row as any)?.taskGroupID || row?.TaskGroupID
     const loginuserID = user?.id
 
     const response = await createTaskStatus({
       Statusname: data.Statusname,
       TaskID: taskID,
-      LoginuserID: loginuserID,
+      LoginuserID: loginuserID as number,
       GroupID: groupID,
       Colorcode: data.Colorcode
     });
@@ -693,13 +700,18 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
 }
 
   const allStatusOptions = useMemo(() => {
-    const noneOption: ProjectStatusList = {
+    const noneOption = {
       StatusID: 0,
       Statusname: 'None',
       Colorcode: '#E0E0E0',
-      IsDefault: false,
-      TaskgroupID: null
-    }
+      IsDefault: 0,
+      TaskgroupID: 0,
+        CreatedBy: 0,
+          IsDelete: 0,
+          CreateDate:""
+
+    } as ProjectStatusList
+      
     
     return [noneOption, ...(statusList || [])]
   }, [statusList])

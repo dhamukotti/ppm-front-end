@@ -10,7 +10,7 @@ import { Icon } from '@iconify/react'
 import { IconButton } from '@mui/material'
 
 import type { TaskListItemType } from '@/services/modules/task/types'
-import TaskDetailsDialog from '../details'
+// import TaskDetailsDialog from '../details'
 
 interface TaskNameCellProps {
   renderTextField: ReactNode
@@ -35,7 +35,7 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
           <Icon icon={'lucide:message-circle-more'} fontSize={22} />
         </IconButton>
       </Box>
-      <TaskDetailsDialog open={openTaskView} close={handleClose} taskData={rowData} refetchTasks={refetch} />
+      {/* <TaskDetailsDialog open={openTaskView} close={handleClose} taskData={rowData} refetchTasks={refetch} /> */}
     </>
   )
 }

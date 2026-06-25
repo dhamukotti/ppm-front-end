@@ -204,10 +204,10 @@ const deleteStatus = async (payload: DeleteStatusPayload): Promise<DeleteStatusR
 
 interface StatusMenuItemProps {
   item: ProjectStatusList
-  row: SprintItem | AdditionalSubTaskListItem
+  row: SprintItem | AdditionalSubTaskListItem | TaskListItemType
   handleClose: () => void
-  handleEdit?: (item?: ProjectStatusList) => void
-  handleDelete?: (item?: ProjectStatusList) => void
+  handleEdit?: (item: ProjectStatusList) => void
+  handleDelete?: (item: ProjectStatusList) => void
   refetch: () => void
   columnData?: AdditionalColumn
   dynamicValue?: any
@@ -249,8 +249,8 @@ const StatusMenuItem = ({
         // These are example values - replace with actual values from your app
         const dynamicColumnID = columnData?.additionalColumnID;
         const loginuserID = user?.id; // Get from your auth context
-        const sprintID = row.SprintID; // Get from your props/context
-        const sprintGroupID = row.SprintGroupID; // Get from your props/context
+const sprintID = (row as any).SprintID
+const sprintGroupID = (row as any).SprintGroupID
         
         // Handle null/undefined for DynamicValue
         // If StatusID is 0 (None option) or null/undefined, send empty string or null
@@ -453,21 +453,40 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
   const { statusList = [] } = useWorkspace()
 
   // Update the useQuery to use the new API
-  const { data: dynamicStatus, refetch: refetchStatusList } = useQuery({
-    queryKey: ['status-lookup-list'],
-    queryFn: fetchStatusLookupList,
-    select: (data) => {
-      // Transform the API response to match ProjectStatusList format
-      return data.map((item: StatusLookupItem) => ({
-        StatusID: item.statusID,
-        Statusname: item.statusname,
-        Colorcode: item.colorcode,
-        IsDefault: false, // Set default value since API doesn't provide this
-        TaskgroupID: null // Set default value since API doesn't provide this
-      }));
-    }
-  })
-
+  // const { data: dynamicStatus, refetch: refetchStatusList } = useQuery({
+  //   queryKey: ['status-lookup-list'],
+  //   queryFn: fetchStatusLookupList,
+  //   select: (data) => {
+  //     // Transform the API response to match ProjectStatusList format
+  //     return data.map((item: StatusLookupItem) => ({
+  //       StatusID: item.statusID,
+  //       Statusname: item.statusname,
+  //       Colorcode: item.colorcode,
+  //       IsDefault: false, // Set default value since API doesn't provide this
+  //       TaskgroupID: null,
+  //       CreateDate: '',    // ✅ added — required by ProjectStatusList
+  //     CreatedBy: 0,      // ✅ added — required by ProjectStatusList
+  //     IsDelete: 0  // Set default value since API doesn't provide this
+  //     }));
+  //   }
+  // })
+const { data: dynamicStatus, refetch: refetchStatusList } = useQuery({
+  queryKey: ['status-lookup-list'],
+  queryFn: fetchStatusLookupList,
+  select: (data): ProjectStatusList[] => {
+    // Transform the API response to match ProjectStatusList format
+    return data.map((item: StatusLookupItem): ProjectStatusList => ({
+      StatusID: item.statusID,
+      Statusname: item.statusname,
+      Colorcode: item.colorcode,
+      IsDefault: 0,
+      TaskgroupID: 0,        // ✅ changed from null → 0 (ProjectStatusList.TaskgroupID is number, not nullable)
+      CreateDate: '',
+      CreatedBy: 0,
+      IsDelete: 0
+    }));
+  }
+})
   const {
     handleSubmit,
     control,
@@ -654,8 +673,9 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
       StatusID: 0, // Use 0 to represent null/empty
       Statusname: 'None',
       Colorcode: '#E0E0E0', // Light gray color
-      IsDefault: false,
-      TaskgroupID: null
+      IsDefault: 0,
+      CreateDate:"", CreatedBy:0, IsDelete:0,
+      TaskgroupID: 0
     }
     
     return [noneOption, ...(statusList || [])]

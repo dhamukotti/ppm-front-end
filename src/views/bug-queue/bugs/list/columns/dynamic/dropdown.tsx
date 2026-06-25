@@ -18,21 +18,21 @@ import { Controller, useForm } from 'react-hook-form'
 import axios from 'axios'
 import { toast } from 'react-hot-toast'
 
-import type { AdditionalColumn } from '@/services/modules/project/types'
+import type { AdditionalColumn } from '@/services/modules/bug-queue/types'
 import { updateSubTask } from '@/services/modules/sub-task'
 import type { AdditionalSubTaskListItem } from '@/services/modules/sub-task/types'
 import { deleteDynamicValue, updateTasks } from '@/services/modules/task'
 import { addDropdownItem, fetchDropDownList } from '@/services/modules/task-group'
 import type { DynamicDropdownList } from '@/services/modules/task-group/types'
-import type { AdditionalValue, SprintItem } from '@/services/modules/sprint-item/types'
+import type {  BugQueueListAPI } from '@/services/modules/bug-queue/types'
 import CustomButton from '@components/button'
 import { useAuth } from '@/hooks/useAuth'
 
 interface DynamicDropdownProps {
-  rowData: SprintItem 
+  rowData: BugQueueListAPI 
   refetch: () => void
   isSubTask?: boolean
-  dynamicValue?: AdditionalValue[]
+  dynamicValue?: AdditionalColumn[]
   columnData?: AdditionalColumn
   canEdit?: boolean
 }
@@ -122,7 +122,7 @@ console.log(rowData,'dd');
     // If we have sprint dropdown values, use them (filtering out already selected ones)
     if (transformedSprintValues.length > 0) {
       return transformedSprintValues.filter(i =>
-        selectedValues?.every(val => {
+        selectedValues?.every((val:any) => {
           return val.dynamicddlID !== i?.Dynamic_ddl_ID;
         })
       );
@@ -130,7 +130,7 @@ console.log(rowData,'dd');
     
     // Otherwise fall back to the original dropdown items
     const finalArr = dropdownItems?.filter(i =>
-      selectedValues?.every(val => {
+      selectedValues?.every((val:any) => {
         return val.dynamicddlID !== i?.Dynamic_ddl_ID;
       })
     )
@@ -147,8 +147,35 @@ console.log(rowData,'dd');
     setCreateMenu(false)
   }
 
-  const handleDropdownSelect = async (item: DynamicDropdownList | null) => {
+  // const handleDropdownSelect = async (item: DynamicDropdownList | null) => {
 
+  //   try {
+  //     if (!item) return;
+      
+  //     // Construct the API URL with the required parameters
+  //     const BASE_URL = process.env.NEXT_PUBLIC_API_URL1;
+  //     const DynamicColumnID = columnData?.additionalColumnID;
+  //     const LoginuserID = user?.id;
+  //     const DynamicValue = item?.Valuetxt;
+      
+  //     const apiUrl = `${BASE_URL}/InsertBugDynamicValues?DynamicColumnID=${DynamicColumnID}&LoginuserID=${LoginuserID}&BugID=${rowData?.BugID}&GroupID=${rowData?.groupID}&DynamicValue=${DynamicValue}`;
+      
+  //     // Make the API call using POST method
+  //     const response = await axios.post(apiUrl);
+      
+  //     if (response) {
+  //       toast.success('Value selected successfully');
+  //       await refetch();
+  //       await refetchSprintValues();
+  //       handleClose();
+  //     }
+  //   } catch (error) {
+  //     console.error('error selecting dropdown value :', error)
+  //     toast.error('Failed to select value');
+  //   }
+  // }
+
+   const handleDropdownSelect = async (item: { Dynamic_ddl_ID: number; Valuetxt: string } | null) => {
     try {
       if (!item) return;
       
@@ -156,9 +183,8 @@ console.log(rowData,'dd');
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL1;
       const DynamicColumnID = columnData?.additionalColumnID;
       const LoginuserID = user?.id;
-      const SprintID = rowData?.taskID;
-      const SprintGroupID = rowData?.taskGroupID;
-      const DynamicValue = item?.Valuetxt;
+
+      const DynamicValue = item.Valuetxt; // Now this works because item always has Valuetxt
       
       const apiUrl = `${BASE_URL}/InsertBugDynamicValues?DynamicColumnID=${DynamicColumnID}&LoginuserID=${LoginuserID}&BugID=${rowData?.BugID}&GroupID=${rowData?.groupID}&DynamicValue=${DynamicValue}`;
       
@@ -176,14 +202,11 @@ console.log(rowData,'dd');
       toast.error('Failed to select value');
     }
   }
-
   const handleDeleteLabel = async (id: string) => {
     try {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL1;
       const DynamicColumnID = columnData?.additionalColumnID;
       const LoginuserID = user?.id;
-      const taskid = rowData?.taskID;
-      const groupid = rowData?.taskGroupID;
       
       // Construct the URL with all required parameters
       const apiUrl = `${BASE_URL}/BugRemoveDynamicDropdownValues?AdditionalColID=${DynamicColumnID}&LoginUserID=${LoginuserID}&GroupID=${rowData?.groupID}&BugID=${rowData?.BugID}&DynamicDropdownValueID=${id}`;
@@ -323,7 +346,7 @@ console.log(rowData,'dd');
                       getOptionLabel={option => {
                         return option.Valuetxt || ''
                       }}
-                      isOptionEqualToValue={(option, value) => option.dynamicDropdownValueID === value?.dynamicDropdownValueID}
+                      isOptionEqualToValue={(option, value) => option.Dynamic_ddl_ID === value?.Dynamic_ddl_ID}
                       onChange={(event, newValue) => {
                         handleDropdownSelect(newValue)
                       }}
@@ -335,7 +358,7 @@ console.log(rowData,'dd');
                 <Box minHeight={'50px'}>
                   {selectedValues?.length ? (
                     <Box display={'flex'} alignItems={'center'} flexWrap={'wrap'} rowGap={3} columnGap={3}>
-                      {selectedValues?.map((item, index) => {
+                      {selectedValues?.map((item:any, index:any) => {
                         // FIXED: Get the value text properly - prioritize valueText, then Dropdown.Valuetxt
                         const valueText = item?.valueText || item?.Dropdown?.Valuetxt || item?.valueText || '';
                         

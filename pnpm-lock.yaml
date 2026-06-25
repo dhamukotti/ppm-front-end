@@ -68,9 +68,6 @@ importers:
       nextjs-toploader:
         specifier: ^3.7.15
         version: 3.7.15(next@15.1.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      razorpay:
-        specifier: ^2.9.6
-        version: 2.9.6
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -95,9 +92,6 @@ importers:
       react-perfect-scrollbar:
         specifier: 1.5.8
         version: 1.5.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-razorpay:
-        specifier: ^3.0.1
-        version: 3.0.1(react@18.3.1)
       react-use:
         specifier: 17.6.0
         version: 17.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2864,9 +2858,6 @@ packages:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
 
-  razorpay@2.9.6:
-    resolution: {integrity: sha512-zsHAQzd6e1Cc6BNoCNZQaf65ElL6O6yw0wulxmoG5VQDr363fZC90Mp1V5EktVzG45yPyNomNXWlf4cQ3622gQ==}
-
   react-colorful@5.6.1:
     resolution: {integrity: sha512-1exovf0uGTGyq5mXQT0zgQ80uvj2PCwvF8zY1RN9/vbJVSjSo3fsB/4L3ObbF7u70NduSiK4xu4Y6q1MHoUGEw==}
     peerDependencies:
@@ -2914,11 +2905,6 @@ packages:
     peerDependencies:
       react: '>=16.3.3'
       react-dom: '>=16.3.3'
-
-  react-razorpay@3.0.1:
-    resolution: {integrity: sha512-43P6VB20quinlUDN3dUdg0XlMtoClzfvhgpPWnGrLwLE6Pr570fXdA4kC+92Wqof48A/x96TXRpLnrQ/J1eXyw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
@@ -6490,12 +6476,6 @@ snapshots:
 
   quick-lru@5.1.1: {}
 
-  razorpay@2.9.6:
-    dependencies:
-      axios: 1.7.9
-    transitivePeerDependencies:
-      - debug
-
   react-colorful@5.6.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -6541,10 +6521,6 @@ snapshots:
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-
-  react-razorpay@3.0.1(react@18.3.1):
-    dependencies:
-      react: 18.3.1
 
   react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

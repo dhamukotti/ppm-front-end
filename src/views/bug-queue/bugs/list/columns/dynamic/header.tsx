@@ -31,13 +31,13 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
   
   const initialValue = useMemo(() => column?.colname || column?.ColumnName || column?.colName, [column?.colname, column?.ColumnName, column?.colName])
   const { user } = useAuth()
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState<any>(null)
   const [editOpen, setEditOpen] = useState(false)
   const [value, setValue] = useState(initialValue)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [columns, setColumns] = useState([])
-  const [selectedColumn, setSelectedColumn] = useState(null)
-  const [activeColumn, setActiveColumn] = useState(null)
+  const [columns, setColumns] = useState<any[]>([])
+  const [selectedColumn, setSelectedColumn] = useState<any>(null)
+  const [activeColumn, setActiveColumn] = useState<any>(null)
 
   // Update value when initialValue changes
   useEffect(() => {
@@ -240,6 +240,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
         setOpen={val => setDeleteOpen(!!val)}
         title={getDeleteTitle()}
         onConfirm={handleDelete}
+        refetch={()=>{}}
         description={'You wont be able to revert this action'}
       />
 

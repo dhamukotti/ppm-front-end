@@ -60,7 +60,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
   const onEditClick = () => {
     setAnchorEl(null)
     if (selectedColumn) {
-      setValue(selectedColumn.colname || selectedColumn.columnName)
+      setValue((selectedColumn as any).colname || (selectedColumn as any).columnName)
     } else if (column) {
       setValue(column.colname || column.columnName)
     }
@@ -77,7 +77,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
   
   const updateColumnFn = async () => {
     try {
-      const AdditionalColumnID = selectedColumn?.additionalColumnID || column?.additionalColumnID;
+      const AdditionalColumnID = (selectedColumn as any)?.additionalColumnID || column?.additionalColumnID;
       const Columnname = value;
       
       if (!AdditionalColumnID) {
@@ -133,7 +133,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
   const handleDelete = async () => {
     try {
       const Baseurl = process.env.NEXT_PUBLIC_API_URL1 || 'https://uat.ppmbackend.projectpulse360.com';
-      const dynamicColumnId = activeColumn?.additionalColumnID?.toString() || column?.additionalColumnID?.toString();
+      const dynamicColumnId = (activeColumn as any)?.additionalColumnID?.toString() || column?.additionalColumnID?.toString();
       
       if (!dynamicColumnId) {
         toast.error('Column ID not found');
@@ -179,7 +179,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
 
   const getDeleteTitle = () => {
     if (activeColumn) {
-      const columnName = activeColumn?.colname || activeColumn?.columnName || 'this column';
+      const columnName = (activeColumn as any)?.colname || (activeColumn as any)?.columnName || 'this column';
       return `Delete '${columnName}' column?`;
     } else if (column) {
       const columnName = column?.colname || column?.ColumnName || 'this column';
@@ -240,6 +240,7 @@ const DynamicTableHeader = ({ column, refetch, isSubTask = false }: DynamicTable
         setOpen={val => setDeleteOpen(!!val)}
         title={getDeleteTitle()}
         onConfirm={handleDelete}
+        refetch={()=>{}}
         description={'You wont be able to revert this action'}
       />
 

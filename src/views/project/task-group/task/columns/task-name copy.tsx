@@ -55,22 +55,7 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
   const reconnectInterval = 3000
 
   const connectWebSocket = useCallback(() => {
-    // Prevent multiple connection attempts
-    if (isConnectingRef.current) {
-      return
-    }
-
-    // Close existing connection if any
-    if (socketRef.current) {
-      if (socketRef.current.readyState === WebSocket.OPEN || socketRef.current.readyState === WebSocket.CONNECTING) {
-        return
-      }
-      socketRef.current = null
-    }
-
-    // Check if we have required data
-    if (!rowData?.TaskID || !user?.id) {
-      console.warn('TaskNameCell: Missing required data for WebSocket connection')
+    if (isConnectingRef.current || (socketRef.current && socketRef.current.readyState === WebSocket.OPEN)) {
       return
     }
 
@@ -80,20 +65,9 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
     try {
       const ws = new WebSocket(wsUrl)
 
-      // Set connection timeout
-      const connectionTimeout = setTimeout(() => {
-        if (ws.readyState !== WebSocket.OPEN) {
-          ws.close()
-          isConnectingRef.current = false
-          console.error('TaskNameCell: WebSocket connection timeout')
-        }
-      }, 10000)
-
       ws.onopen = () => {
-        clearTimeout(connectionTimeout)
         isConnectingRef.current = false
         reconnectAttemptsRef.current = 0
-        console.log('TaskNameCell: WebSocket connected successfully')
       }
 
       ws.onmessage = async (event) => {
@@ -121,6 +95,7 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
             console.error('Error parsing WebSocket message JSON:', err)
             return
           }
+
 
           // Determine a stable message id for deduplication.
           // Prefer server/client provided uniqueId or SenderID+timestamp+Message fallback.
@@ -153,8 +128,10 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
               if (!openTaskView) {
                 messageCountRef.current = messageCountRef.current + 1
                 setMessageCount(prev => prev + 1)
+              } else {
               }
             }
+          } else {
           }
 
           // Always refetch when update is received
@@ -165,36 +142,20 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
       }
 
       ws.onerror = (error) => {
-        clearTimeout(connectionTimeout)
         console.error('TaskNameCell WebSocket error:', error)
         isConnectingRef.current = false
-        // Only attempt reconnect if not manually closed
-        if (ws.readyState !== WebSocket.CLOSED) {
-          ws.close()
-        }
       }
 
       ws.onclose = (event) => {
-        clearTimeout(connectionTimeout)
         isConnectingRef.current = false
         socketRef.current = null
 
-        // Don't reconnect if it was a normal closure
-        if (event.code === 1000) {
-          return
-        }
-
-        // Auto-reconnect logic with exponential backoff
+        // Auto-reconnect logic
         if (reconnectAttemptsRef.current < maxReconnectAttempts) {
           reconnectAttemptsRef.current += 1
-          const delay = Math.min(reconnectInterval * Math.pow(1.5, reconnectAttemptsRef.current - 1), 30000)
-          console.log(`TaskNameCell: Attempting to reconnect in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${maxReconnectAttempts})`)
-          
           reconnectTimeoutRef.current = setTimeout(() => {
             connectWebSocket()
-          }, delay)
-        } else {
-          console.error('TaskNameCell: Max reconnection attempts reached')
+          }, reconnectInterval)
         }
       }
 
@@ -212,11 +173,7 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
     }
 
     if (socketRef.current) {
-      try {
-        socketRef.current.close(1000, 'Component unmounting')
-      } catch (error) {
-        console.error('Error closing WebSocket:', error)
-      }
+      socketRef.current.close(1000, 'Component unmounting')
       socketRef.current = null
     }
 
@@ -226,29 +183,12 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
 
   // Connect on mount and disconnect on unmount
   useEffect(() => {
-    // Small delay to ensure component is fully mounted
-    const timer = setTimeout(() => {
-      connectWebSocket()
-    }, 100)
+    connectWebSocket()
 
     return () => {
-      clearTimeout(timer)
       disconnectWebSocket()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Reconnect when task ID changes
-  useEffect(() => {
-    if (rowData?.TaskID && user?.id) {
-      disconnectWebSocket()
-      const timer = setTimeout(() => {
-        connectWebSocket()
-      }, 200)
-      return () => clearTimeout(timer)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rowData?.TaskID, user?.id])
+  }, [connectWebSocket, disconnectWebSocket])
 
   const handleTaskViewClick = () => {
     setOpenTaskView(true)
@@ -258,7 +198,6 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
     // Clear seen messages for this session
     seenMessageIdsRef.current.clear()
     
-    // Ensure WebSocket is connected
     if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
       connectWebSocket()
     }
@@ -318,6 +257,7 @@ const TaskNameCell = ({ renderTextField, rowData, refetch }: TaskNameCellProps) 
         if (!openTaskView) {
           messageCountRef.current = messageCountRef.current + 1
           setMessageCount(prev => prev + 1)
+        } else {
         }
       }
     } catch (err) {

@@ -466,7 +466,7 @@ const onSubmit = async (data: FormValidateType) => {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL1 || 'https://uat.ppmbackend.projectpulse360.com';
       
       // Use only UploadSprintDynamicDocument API
-      const uploadEndpoint = `${BASE_URL}/SprintTaskFileUpload/${columnId}/${user?.id}/${rowData?.taskID || rowData?.taskID || ''}/${rowData?.taskGroupID || rowData?.taskGroupID || ''}/${encodeURIComponent(data.value)}/${encodeURIComponent(data?.displayText)}`
+      const uploadEndpoint = `${BASE_URL}/SprintTaskFileUpload/${columnId}/${user?.id}/${(rowData as any)?.taskID || (rowData as any)?.taskID || ''}/${(rowData as any)?.taskGroupID || (rowData as any)?.taskGroupID || ''}/${encodeURIComponent(data.value)}/${encodeURIComponent(data?.displayText)}`
       
       const response = await axios.post(
         uploadEndpoint,
@@ -524,7 +524,7 @@ const onSubmit = async (data: FormValidateType) => {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL1 || 'https://uat.ppmbackend.projectpulse360.com';
       
       // Use only UploadSprintDynamicDocument API
-      const uploadEndpoint = `${BASE_URL}/SprintTaskFileUpload/${columnId}/${user?.id}/${rowData?.taskID || rowData?.taskID || ''}/${rowData?.taskGroupID || rowData?.taskGroupID || ''}/-/${encodeURIComponent(data?.displayText)}`
+      const uploadEndpoint = `${BASE_URL}/SprintTaskFileUpload/${columnId}/${user?.id}/${(rowData as any)?.taskID || (rowData as any)?.taskID || ''}/${(rowData as any)?.taskGroupID || (rowData as any)?.taskGroupID || ''}/-/${encodeURIComponent(data?.displayText)}`
       
       const response = await axios.post(
         uploadEndpoint,
@@ -604,7 +604,7 @@ const onSubmit = async (data: FormValidateType) => {
       const BASE_URL = process.env.NEXT_PUBLIC_API_URL1 || 'https://uat.ppmbackend.projectpulse360.com';
       
       // Use dynamic values instead of hardcoded ones
-      const uploadEndpoint = `${BASE_URL}/SprintTaskRemoveFileUpload/${columnId}/${user?.id}/${rowData?.taskID || rowData?.taskID || ''}/${rowData?.taskGroupID}`
+      const uploadEndpoint = `${BASE_URL}/SprintTaskRemoveFileUpload/${columnId}/${user?.id}/${(rowData as any)?.taskID || (rowData as any)?.taskID || ''}/${(rowData as any)?.taskGroupID}`
       
       await axios.post(uploadEndpoint)
       toast.success("File Removed Successfully")

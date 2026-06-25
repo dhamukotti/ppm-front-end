@@ -135,7 +135,7 @@ export const useRazorpayPayment = ({ userId, onPaymentSuccess, onPaymentFailure 
 const paymentcheck = async () => {
   const Baseurl = process.env.NEXT_PUBLIC_API_URL1
   const userid = localStorage.getItem('userData')
-  const value= JSON.parse(userid)
+  const value= JSON.parse(userid as string)
   try {
     const res = await axios.post(`${Baseurl}/CheckAccountExpiry/${value?.userData?.UserID}`)
 
@@ -367,9 +367,9 @@ const paymentcheck = async () => {
     try {
       const formData = new FormData()
             const value = localStorage.getItem('paymentStatus')
-            const parsed = JSON.parse(value)
+            const parsed = JSON.parse(value as string)
             const finalamount = (parsed.amount *100)
-      formData.append('amount', finalamount)
+      formData.append('amount', finalamount.toString())
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL1}/GenerateRazorID/`, {
         method: 'POST',

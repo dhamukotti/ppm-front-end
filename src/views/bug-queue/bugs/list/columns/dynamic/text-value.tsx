@@ -1,21 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { TextField, Typography } from '@mui/material'
 import type { Getter } from '@tanstack/react-table'
-import type { AdditionalColumn } from '@/services/modules/project/types'
+import type { AdditionalColumn,BugQueueListAPI } from '@/services/modules/bug-queue/types'
 import { pattern } from '@/constants/patterns'
 import axios from 'axios'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'react-hot-toast'
 
 interface TaskTextValuesProps {
-  table: any
+  table: BugQueueListAPI
   getValue: Getter<string>
   index: number
   id: string
   columnData: AdditionalColumn
   dynamicValue: any
   canEdit: boolean
-  rowData: string
+  rowData: BugQueueListAPI
 }
 
 const TaskTextValues = ({ table, rowData, getValue, index, id, columnData, dynamicValue, canEdit }: TaskTextValuesProps) => {
@@ -32,7 +32,6 @@ const TaskTextValues = ({ table, rowData, getValue, index, id, columnData, dynam
   const callInsertDynamicValuesAPI = async (newValue: string) => {
     const DynamicColumnID = columnData?.additionalColumnID;
     const LoginuserID = user?.id;
-    const Taskid = rowData?.taskID;
     const DynamicValue = newValue;
     const BASE_URL = process.env.NEXT_PUBLIC_API_URL1;
 

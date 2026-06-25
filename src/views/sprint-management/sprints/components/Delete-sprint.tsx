@@ -34,7 +34,9 @@ const DeleteTasksComponent = ({
       ?.filter((i, idx) => Object?.keys(selectedRows)?.some(k => +k === +idx))
       ?.map(t => t?.SprintID)
 
-    await deleteSprint(finalArray)
+    // await deleteSprint(finalArray)
+      await deleteSprint(finalArray?.join(',') ?? '')   // ✅ convert number[] | undefined -> string
+
     await refetch()
     setDeleteOpen(false)
     setSelectedRows({})
