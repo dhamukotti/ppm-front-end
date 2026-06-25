@@ -1,2 +1,6 @@
 [build]
   command = "pnpm install --no-frozen-lockfile && pnpm run build"
+  publish = "dist"   # or "build" depending on your framework
+
+[build.environment]
+  NPM_FLAGS = "--no-frozen-lockfile"
