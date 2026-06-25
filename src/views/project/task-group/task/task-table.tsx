@@ -246,7 +246,60 @@ const TaskTable: React.FC<TaskTableProps> = ({
     [canEdit, dynamicColumn, refetch]
   )
 
-  const table = useReactTable({
+  // const table = useReactTable({
+  //   data: (taskList ?? []) as TaskListItemType[],
+  //   columns,
+  //   initialState: { columnPinning: { left: ['select', 'Taskname'], right: ['add-column'] } },
+  //   state: {
+  //     columnPinning: { left: ['select', 'Taskname'] },
+  //     rowSelection: selectedRows,
+  //     columnVisibility: {
+  //       ...columnVisibility,
+  //       'add-column': canEdit
+  //     }
+  //   },
+  //   defaultColumn: defaultColumn(canEdit),
+  //   enableRowSelection: true,
+  //   getRowCanExpand: () => true,
+  //   onRowSelectionChange: setSelectedRows,
+  //   getCoreRowModel: getCoreRowModel(),
+  //   getPaginationRowModel: getPaginationRowModel(),
+  //   getFilteredRowModel: getFilteredRowModel(),
+  //   getExpandedRowModel: getExpandedRowModel(),
+  //   meta: {
+  //     updateData: async (rowIndex: number, columnId: any, value: { AdditionalColumnID: string }) => {
+  //       if (columnId === 'Taskname' && taskList?.[rowIndex]?.TaskID) {
+  //         try {
+  //           const body = {
+  //             Taskname: value,
+  //             Title: 'Task Name Changed',
+  //             PreviousState: taskList?.[rowIndex]?.Taskname,
+  //             NewState: value
+  //           }
+
+  //           const response = await updateTasks({ id: taskList?.[rowIndex]?.TaskID?.toString(), body })
+
+  //           if (response) {
+  //             refetch()
+  //           }
+  //         } catch (error) {
+  //           console.error('error :', error)
+  //         }
+  //       }
+
+  //       if (value?.AdditionalColumnID && taskList?.[rowIndex]?.TaskID) {
+  //         const body = { ...value }
+
+  //         const response = await updateTasks({ id: taskList?.[rowIndex]?.TaskID?.toString(), body })
+
+  //         if (response) {
+  //           refetch()
+  //         }
+  //       }
+  //     }
+  //   }
+  // })
+const table = useReactTable({
     data: (taskList ?? []) as TaskListItemType[],
     columns,
     initialState: { columnPinning: { left: ['select', 'Taskname'], right: ['add-column'] } },
@@ -267,7 +320,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     meta: {
-      updateData: async (rowIndex: number, columnId: any, value: { AdditionalColumnID: string }) => {
+      updateData: async (rowIndex: number, columnId: any, value: string | { AdditionalColumnID: string }) => {
         if (columnId === 'Taskname' && taskList?.[rowIndex]?.TaskID) {
           try {
             const body = {
@@ -287,7 +340,7 @@ const TaskTable: React.FC<TaskTableProps> = ({
           }
         }
 
-        if (value?.AdditionalColumnID && taskList?.[rowIndex]?.TaskID) {
+        if (typeof value === 'object' && value?.AdditionalColumnID && taskList?.[rowIndex]?.TaskID) {
           const body = { ...value }
 
           const response = await updateTasks({ id: taskList?.[rowIndex]?.TaskID?.toString(), body })
@@ -299,7 +352,6 @@ const TaskTable: React.FC<TaskTableProps> = ({
       }
     }
   })
-
   const renderSubComponent = ({ row }: { row: TaskListItemType }) => {
     return (
       <SubTaskTable

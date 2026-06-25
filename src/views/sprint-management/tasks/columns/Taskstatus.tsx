@@ -469,7 +469,10 @@ const TaskStatus = ({
         Statusname: item.statusname,
         Colorcode: item.colorcode,
         IsDefault: false,
-        TaskgroupID: null
+        TaskgroupID: null,
+        CreateDate: new Date().toISOString(),
+        CreatedBy: 0,
+        IsDelete: false
       }));
     }
   })
@@ -525,14 +528,16 @@ const TaskStatus = ({
     return false
   }
 
-  const handleEdit = (item: ProjectStatusList) => {
-    setIsEdit(item?.StatusID?.toString())
+  // FIX: made `item` optional so this matches StatusMenuItemProps['handleEdit']
+  const handleEdit = (item?: ProjectStatusList) => {
+    setIsEdit((item as any)?.StatusID?.toString())
     reset({ Statusname: item?.Statusname, Colorcode: item?.Colorcode })
     setFormAnchor(anchorEl)
     setAnchorEl(null)
   }
 
-  const handleDeleteClick = (item: ProjectStatusList) => {
+  // FIX: made `item` optional so this matches StatusMenuItemProps['handleDelete']
+  const handleDeleteClick = (item?: ProjectStatusList) => {
     if (!item?.StatusID || item.StatusID === 0) return;
     setStatusToDelete(item);
     setDeleteDialogOpen(true);
@@ -605,10 +610,11 @@ const TaskStatus = ({
       const groupID = row?.taskGroupID || row?.TaskGroupID;
       const loginuserID = user?.id;
 
+      // FIX: cast loginuserID to number to satisfy CreateTaskStatusPayload['LoginuserID']
       await createTaskStatus({
         Statusname: data.Statusname,
         TaskID: taskID,
-        LoginuserID: loginuserID,
+        LoginuserID: loginuserID as number,
         GroupID: groupID,
         Colorcode: data.Colorcode
       });
@@ -635,12 +641,16 @@ const TaskStatus = ({
   }
 
   const allStatusOptions = useMemo(() => {
+    // Create a properly typed none option with all required properties
     const noneOption: ProjectStatusList = {
       StatusID: 0,
       Statusname: 'None',
       Colorcode: '#E0E0E0',
-      IsDefault: false,
-      TaskgroupID: null
+      IsDefault: 0,
+      TaskgroupID: 0,
+      CreateDate: new Date().toISOString(),
+      CreatedBy: 0,
+      IsDelete: 0
     }
     
     return [noneOption, ...(statusList || [])]
@@ -750,7 +760,7 @@ const TaskStatus = ({
                     </Typography>
                   </Box>
                 </Grid>
-                {dynamicStatus?.map(item => (
+                {dynamicStatus?.map((item:any) => (
                   <StatusMenuItem
                     item={item}
                     row={row}

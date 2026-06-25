@@ -260,7 +260,8 @@ const SprintList = ({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     meta: {
-      updateData: async (rowIndex: number, columnId: any, value: { AdditionalColumnID: string }) => {
+      updateData: async (rowIndex: number, columnId: any, value: string | { AdditionalColumnID: string }
+) => {
         if (columnId === 'Name' && filteredSprintData?.[rowIndex]?.SprintID) {
           try {
             const response = await updateSprint({

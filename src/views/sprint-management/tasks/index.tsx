@@ -35,7 +35,7 @@ const SprintTaskManagementContent = ({ workspaceID }: { workspaceID: string }) =
     enabled: !!groupid
   })
 
-  const sprintDataArray = sprintListData && sprintListData.data ? sprintListData.data : []
+  const sprintDataArray = sprintListData && (sprintListData as any).data ? (sprintListData as any).data : []
 
 
 
@@ -45,8 +45,8 @@ const SprintTaskManagementContent = ({ workspaceID }: { workspaceID: string }) =
   // Extract task names and IDs from the sprint data
   const tasks = selectedSprint && sprintDataArray.length > 0 
     ? sprintDataArray
-        .filter(task => task.SprintID === selectedSprint.SprintID)
-        .map(task => ({
+        .filter((task: any) => task.SprintID === selectedSprint.SprintID)
+        .map((task: any) => ({
           id: task.SprintTaskID,
           name: task.Taskname || 'Unnamed Task',
           sprintID: task.SprintID,
@@ -64,7 +64,7 @@ const SprintTaskManagementContent = ({ workspaceID }: { workspaceID: string }) =
 // Replace the filteredTasks logic with this corrected version:
 
 // Filter tasks based on task search value - FIXED VERSION
-const filteredTasks = tasks.filter(task => {
+const filteredTasks = tasks.filter((task:any) => {
   // If a task is selected and search value matches the selected task name, show all tasks
   if (selectedTask && taskSearchValue === selectedTask.name) {
     return true;
@@ -106,7 +106,7 @@ const filteredTasks = tasks.filter(task => {
 
   const handleSprintSelect = (sprint: SprintItem) => {
     setSelectedSprint(sprint)         
-    setgroupid(sprint.SprintID)              
+    setgroupid((sprint as any).SprintID)              
     setSearchValue('') // Clear the search input when a group is selected
     setShowDropdown(false)
     setTaskSearchValue('') // Clear task search when sprint is selected
@@ -403,7 +403,7 @@ const filteredTasks = tasks.filter(task => {
                     >
                       {filteredTasks.length > 0 ? (
                         <List dense sx={{ py: 0 }}>
-                          {filteredTasks.map((task, index) => (
+                          {filteredTasks.map((task:any, index:any) => (
                             <ListItem
                               key={`task-dropdown-${task.id}-${index}`}
                               onClick={() => handleTaskSelect(task)}
@@ -478,7 +478,7 @@ const filteredTasks = tasks.filter(task => {
 
 const SprintTaskManagementPage = ({ workspaceID }: { workspaceID: string }) => {
   return (
-    <SprintTaskManagementProvider workspaceID={workspaceID}>
+    <SprintTaskManagementProvider workspaceID={workspaceID} groupID=''>
       <SprintTaskManagementContent workspaceID={workspaceID} />
     </SprintTaskManagementProvider>
   )

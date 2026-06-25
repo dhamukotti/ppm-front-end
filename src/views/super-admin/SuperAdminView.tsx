@@ -262,7 +262,7 @@ function TaskRow({ task }: { task: Task }) {
   const priorityColor = priorityKey ? PRIORITY_CONFIG[priorityKey].color : "#94a3b8";
   const priorityIcon = priorityKey ? PRIORITY_CONFIG[priorityKey].icon : "mdi:flag-outline";
 
-  const handleTaskClick = (task) => {
+  const handleTaskClick = (task:any) => {
    // console.log(task,'')
     router.push(`/project/${task?.projectID}`);
     
@@ -550,11 +550,11 @@ const {user}= useAuth()
 
         if (tasksResponse.data && Array.isArray(tasksResponse.data)) {
           setUserTasks(tasksResponse.data);
-          const apiUsersConverted = usersResponse.data.map((user, index) => 
+          const apiUsersConverted = usersResponse.data.map((user:any, index:any) => 
             convertApiUserToUser(user, index, tasksResponse.data)
           );
           const uniqueUsersMap = new Map();
-          apiUsersConverted.forEach(user => {
+          apiUsersConverted.forEach((user: any) => {
             const key = `${user.name}_${user.id}`;
             if (!uniqueUsersMap.has(key)) {
               uniqueUsersMap.set(key, user);
@@ -562,11 +562,11 @@ const {user}= useAuth()
           });
           setAllUsers(Array.from(uniqueUsersMap.values()));
         } else {
-          const apiUsersConverted = usersResponse.data.map((user, index) => 
+          const apiUsersConverted = usersResponse.data.map((user:any, index:any) => 
             convertApiUserToUser(user, index, [])
           );
           const uniqueUsersMap = new Map();
-          apiUsersConverted.forEach(user => {
+          apiUsersConverted.forEach((user:any) => {
             const key = `${user.name}_${user.id}`;
             if (!uniqueUsersMap.has(key)) {
               uniqueUsersMap.set(key, user);

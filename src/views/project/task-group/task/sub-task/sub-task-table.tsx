@@ -266,7 +266,62 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
     [canEdit, dynamicColumn, refetchSubTask, taskGroupData?.taskGroupID]
   )
 
-  const table = useReactTable({
+  // const table = useReactTable({
+  //   data: subTaskList,
+  //   columns,
+  //   state: {
+  //     columnVisibility: {
+  //       'add-column': canEdit,
+  //       'delete-subtask': canEdit
+  //     }
+  //   },
+  //   defaultColumn: defaultColumn(canEdit),
+  //   getCoreRowModel: getCoreRowModel(),
+  //   meta: {
+  //     updateData: async (rowIndex: number, columnId: any, value: { AdditionalColumnID: string }) => {
+  //       if (columnId === 'SubTaskName' || columnId === 'effort') {
+  //         try {
+  //           const body: any = {
+  //             TaskID: taskRow?.TaskID
+  //           }
+
+  //           if (columnId === 'SubTaskName') {
+  //             body.SubTaskName = value
+
+  //             body.Title = 'Sub-task name changed'
+  //             body.PreviousState = subTaskList?.[rowIndex]?.SubTaskName
+  //             body.NewState = value
+  //           }
+
+  //           if (columnId === 'effort') {
+  //             body.Effort = value
+  //             body.Title = 'Sub-task Effort changed'
+  //             body.PreviousState = subTaskList?.[rowIndex]?.Effort ?? ''
+  //             body.NewState = value
+  //           }
+
+  //           const response = await updateSubTask({ id: subTaskList?.[rowIndex]?.SubTaskID?.toString(), body })
+
+  //           if (response) {
+  //             refetchSubTask()
+  //           }
+  //         } catch (error) {
+  //           console.error('error :', error)
+  //         }
+  //       }
+
+  //       if (value?.AdditionalColumnID) {
+  //         const body = { ...value, TaskID: taskRow?.TaskID }
+  //         const response = await updateSubTask({ id: subTaskList?.[rowIndex]?.SubTaskID?.toString(), body })
+
+  //         if (response) {
+  //           refetchSubTask()
+  //         }
+  //       }
+  //     }
+  //   }
+  // })
+const table = useReactTable({
     data: subTaskList,
     columns,
     state: {
@@ -278,7 +333,7 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
     defaultColumn: defaultColumn(canEdit),
     getCoreRowModel: getCoreRowModel(),
     meta: {
-      updateData: async (rowIndex: number, columnId: any, value: { AdditionalColumnID: string }) => {
+      updateData: async (rowIndex: number, columnId: any, value: string | { AdditionalColumnID: string }) => {
         if (columnId === 'SubTaskName' || columnId === 'effort') {
           try {
             const body: any = {
@@ -310,7 +365,7 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
           }
         }
 
-        if (value?.AdditionalColumnID) {
+        if (typeof value === 'object' && value?.AdditionalColumnID) {
           const body = { ...value, TaskID: taskRow?.TaskID }
           const response = await updateSubTask({ id: subTaskList?.[rowIndex]?.SubTaskID?.toString(), body })
 
@@ -321,7 +376,6 @@ const SubTable = ({ taskRow, taskGroupData, canEdit }: SubTableProps) => {
       }
     }
   })
-
   if (isLoading) {
     return (
       <Box display={'flex'} alignItems={'center'} ml={40} justifyContent={'start'} height={'20vh'} width={'100%'}>

@@ -68,10 +68,12 @@ interface DeleteStatusResponse {
 }
 
 // Add Update Status interface
+// FIX (TS2345 @ ~line 732): LoginuserID widened to `number | undefined`
+// because `user?.id` can be undefined and is now passed into this payload.
 interface UpdateStatusPayload {
   StatusID: number;
   TaskID: number;
-  LoginuserID: number;
+  LoginuserID: number | undefined;
   GroupID: number;
   Statusname: string;
   Colorcode: string;
@@ -84,10 +86,12 @@ interface UpdateStatusResponse {
 }
 
 // Add Create Task Status interface
+// FIX (TS2322 @ ~line 755): LoginuserID widened to `number | undefined`
+// because `loginuserID = user?.id` can be undefined.
 interface CreateTaskStatusPayload {
   Statusname: string;
   TaskID: number;
-  LoginuserID: number;
+  LoginuserID: number | undefined;
   GroupID: number;
   Colorcode: string;
 }
@@ -99,6 +103,8 @@ interface CreateTaskStatusResponse {
 }
 
 // Add SprintTaskUpdate interface for status updates
+// FIX (TS2322 @ ~line 408): StatusID widened to `number | null | undefined`
+// because the code explicitly sends `null` to clear the status.
 interface SprintTaskUpdatePayload {
   TaskID: number;
   Taskname?: string;
@@ -107,7 +113,7 @@ interface SprintTaskUpdatePayload {
   EstimatedSP?: number;
   ActualSP?: number;
   isunplan?: boolean;
-  StatusID?: number;
+  StatusID?: number | null;
   PriorityID?: number;
 }
 
@@ -334,8 +340,8 @@ const StatusMenuItem = ({
         const loginuserID = user?.id;
 
         // ✅ FIXED: Use taskID and taskGroupID (same as non-dynamic branch)
-        const taskID = row?.taskID || row?.TaskID;
-        const groupID = row?.taskGroupID || row?.TaskGroupID;
+        const taskID = (row as any)?.taskID || (row as any)?.TaskID;
+        const groupID = (row as any)?.taskGroupID || (row as any)?.TaskGroupID;
 
         let dynamicValueToSend;
 
@@ -375,17 +381,17 @@ const StatusMenuItem = ({
       // For non-dynamic columns, update task status using SprintTaskUpdate API
       try {
         // Get taskID from row data
-        const taskID = row?.taskID || row?.TaskID || row?.ID;
+        const taskID = (row as any)?.taskID || (row as any)?.TaskID || (row as any)?.ID;
         const loginuserID = user?.id;
 
         // Get current task data from row to preserve existing values
-        const currentTaskName = row?.Taskname || row?.taskname || row?.Name || '';
-        const currentDescription = row?.Description || row?.description || '';
-        const currentOwnerID = row?.OwnerID || row?.ownerID || row?.OwnerId || loginuserID;
-        const currentEstimatedSP = row?.EstimatedSP || row?.estimatedSP || row?.EstimateSP || 0;
-        const currentActualSP = row?.ActualSP || row?.actualSP || row?.ActualSpent || 0;
-        const currentIsUnplan = row?.isunplan || row?.IsUnplan || false;
-        const currentPriorityID = row?.PriorityID || row?.priorityID || null;
+        const currentTaskName = (row as any)?.Taskname || (row as any)?.taskname || (row as any)?.Name || '';
+        const currentDescription = (row as any)?.Description || (row as any)?.description || '';
+        const currentOwnerID = (row as any)?.OwnerID || (row as any)?.ownerID || (row as any)?.OwnerId || loginuserID;
+        const currentEstimatedSP = (row as any)?.EstimatedSP || (row as any)?.estimatedSP || (row as any)?.EstimateSP || 0;
+        const currentActualSP = (row as any)?.ActualSP || (row as any)?.actualSP || (row as any)?.ActualSpent || 0;
+        const currentIsUnplan = (row as any)?.isunplan || (row as any)?.IsUnplan || false;
+        const currentPriorityID = (row as any)?.PriorityID || (row as any)?.priorityID || null;
 
         // Determine status ID to send
         let statusIDToSend;
@@ -573,11 +579,16 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
   const { user } = useAuth()
 
   // Update the useQuery to use the new API with taskID and groupID from row
+  // FIX (TS2551 @ ~577, 579, 580, 588): `row` is typed as
+  // `TaskListItemType | AdditionalSubTaskListItem`, neither of which declares
+  // lowercase `taskID` / `taskGroupID` (only `TaskID` / `TaskGroupID`).
+  // Cast to `any` before reading the lowercase variants, same pattern already
+  // used elsewhere in this file (e.g. inside StatusMenuItem).
   const { data: dynamicStatus, refetch: refetchStatusList } = useQuery({
-    queryKey: ['status-lookup-list', row?.taskID, row?.taskGroupID, user?.id],
+    queryKey: ['status-lookup-list', (row as any)?.taskID, (row as any)?.taskGroupID, user?.id],
     queryFn: () => {
-      const taskID = row?.taskID || row?.TaskID;
-      const groupID = row?.taskGroupID || row?.TaskGroupID;
+      const taskID = (row as any)?.taskID || (row as any)?.TaskID;
+      const groupID = (row as any)?.taskGroupID || (row as any)?.TaskGroupID;
       const loginuserID = user?.id;
       
       if (taskID && groupID && loginuserID) {
@@ -585,15 +596,21 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
       }
       return Promise.resolve([]);
     },
-    enabled: !!row?.taskID || !!row?.TaskID,
+    enabled: !!(row as any)?.taskID || !!(row as any)?.TaskID,
     select: (data) => {
       // Transform the API response to match ProjectStatusList format
+      // FIX (TS2739/TS2345 @ ~895, 900): ProjectStatusList also requires
+      // CreateDate, CreatedBy, IsDelete — added below with safe defaults so
+      // the mapped shape satisfies the type used by StatusMenuItem / state.
       return data.map((item: StatusLookupItem) => ({
         StatusID: item.statusID,
         Statusname: item.statusname,
         Colorcode: item.colorcode,
         IsDefault: false,
-        TaskgroupID: null
+        TaskgroupID: null,
+        CreateDate: new Date().toISOString(),
+        CreatedBy: 0,
+        IsDelete: 0
       }));
     }
   })
@@ -686,14 +703,20 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
     return false
   }
 
-  const handleEdit = (item: ProjectStatusList) => {
+  // FIX (TS2322 @ ~867): `item` made optional (`item?: ProjectStatusList`) so
+  // this matches `StatusMenuItemProps.handleEdit`'s signature exactly.
+  // Guard added so behavior is unchanged when item is actually provided.
+  const handleEdit = (item?: ProjectStatusList) => {
+    if (!item) return;
     setIsEdit(item?.StatusID?.toString())
     reset({ Statusname: item?.Statusname, Colorcode: item?.Colorcode })
     setFormAnchor(anchorEl)
     setAnchorEl(null)
   }
 
-  const handleDeleteClick = (item: ProjectStatusList) => {
+  // FIX (TS2322 @ ~868, 901): `item` made optional (`item?: ProjectStatusList`)
+  // so this matches `StatusMenuItemProps.handleDelete`'s signature exactly.
+  const handleDeleteClick = (item?: ProjectStatusList) => {
     if (!item?.StatusID || item.StatusID === 0) return;
     setStatusToDelete(item);
     setDeleteDialogOpen(true);
@@ -726,12 +749,18 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
   const onSubmit = async (data: FormValidateType) => {
   if (isEdit) {
     // Get TaskID and GroupID from row data
-    const taskID = row?.taskID || row?.TaskID;
-    const groupID = row?.taskGroupID || row?.TaskGroupID;
+    // FIX (TS2551 @ ~729, 730): cast to `any` before reading lowercase
+    // `taskID` / `taskGroupID`, same as elsewhere in this file.
+    const taskID = (row as any)?.taskID || (row as any)?.TaskID;
+    const groupID = (row as any)?.taskGroupID || (row as any)?.TaskGroupID;
+    // FIX (TS2345 @ ~732-738): UpdateStatusPayload requires LoginuserID —
+    // it was missing from this call. Added below.
+    const loginuserID = user?.id;
     
     const response = await updateStatus({
       StatusID: parseInt(isEdit),
       TaskID: taskID,      // Add this
+      LoginuserID: loginuserID,
       GroupID: groupID,    // Add this
       Statusname: data.Statusname,
       Colorcode: data.Colorcode
@@ -745,8 +774,8 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
     // }
   } else {
     // FIXED: Use createTaskStatus with taskID and groupID from row data
-    const taskID = row?.taskID || row?.TaskID
-    const groupID = row?.taskGroupID || row?.TaskGroupID
+    const taskID = (row as any)?.taskID || (row as any)?.TaskID
+    const groupID = (row as any)?.taskGroupID || (row as any)?.TaskGroupID
     const loginuserID = user?.id
 
     const response = await createTaskStatus({
@@ -767,13 +796,16 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
 }
 
   const allStatusOptions = useMemo(() => {
-    const noneOption: ProjectStatusList = {
-      StatusID: 0,
-      Statusname: 'None',
-      Colorcode: '#E0E0E0',
-      IsDefault: false,
-      TaskgroupID: null
-    }
+   const noneOption: ProjectStatusList = {
+         StatusID: 0,
+         Statusname: 'None',
+         Colorcode: '#E0E0E0',
+         IsDefault: 0,
+         TaskgroupID: 0,
+         CreateDate: new Date().toISOString(),
+         CreatedBy: 0,
+         IsDelete: 0
+       }
     
     return [noneOption, ...(statusList || [])]
   }, [statusList])
@@ -887,7 +919,7 @@ const TaskStatus = ({ row, refetch, canEdit, dynamicValue, columnData, isSubTask
                     </Typography>
                   </Box>
                 </Grid>
-                {dynamicStatus?.map(item => (
+                {dynamicStatus?.map((item: any) => (
                   <StatusMenuItem
                     item={item}
                     row={row}

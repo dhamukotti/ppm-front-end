@@ -36,7 +36,7 @@ const DeleteTasksComponent = ({
     // Get the selected tasks with SprintTaskID
     const finalArray = sprintlist
       ?.filter((i, idx) => Object?.keys(selectedRows)?.some(k => +k === +idx))
-      ?.map(t => t?.SprintTaskID) // Changed from SprintID to SprintTaskID
+      ?.map(t => (t as any)?.SprintTaskID) // Changed from SprintID to SprintTaskID
 
     // Delete using SprintTaskID
     try {

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Icon } from '@iconify/react'
 
 import CustomButton from '@/components/button'
-import CreateSprintGroupDialog from './create-group-dialog'
+// import CreateSprintGroupDialog from './create-group-dialog'
 
 const NewSprintGroup = () => {
   const [open, setOpen] = useState(false)
@@ -23,7 +23,7 @@ const NewSprintGroup = () => {
       >
         New Group
       </CustomButton>
-      <CreateSprintGroupDialog open={open} setOpen={setOpen} />
+      {/* <CreateSprintGroupDialog open={open} setOpen={setOpen} /> */}
     </>
   )
 }

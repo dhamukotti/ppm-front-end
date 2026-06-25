@@ -23,7 +23,7 @@ import {
 
 import { useQuery } from '@tanstack/react-query'
 
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, TableMeta } from '@tanstack/react-table'
 
 import {
   flexRender,
@@ -57,6 +57,13 @@ import { EstimateSpTextfiled } from '../columns/EstimateSpTextfiled'
 import { IsUnplannedSelector } from '../columns/IsUnplannedSelector'
 import TaskStatus from '../components/statusoriginal'
 import TaskPriority from '../columns/priority'
+
+// FIX: Extend TableMeta to include updateData
+declare module '@tanstack/react-table' {
+  interface TableMeta<TData> {
+    updateData?: (rowIndex: number, columnId: string, value: string | { AdditionalColumnID: string }) => void
+  }
+}
 
 // Define proper types for the taskgroup array
 interface TaskGroup {
@@ -110,6 +117,21 @@ interface SprintTaskInfoResponse {
     value: string;
     [key: string]: any;
   }>;
+}
+
+// FIX: Typed API response for sprintTaskInfoApi to avoid `any[]` property access issues
+type SprintTaskInfoApiResult = SprintTaskInfoResponse | SprintTaskInfoResponse[]
+
+// Helper to extract colvalueList from query result
+const extractColvalueList = (data: SprintTaskInfoApiResult | undefined): any[] => {
+  if (!data) return []
+  if (Array.isArray(data)) {
+    if (data.length > 0 && (data[0] as SprintTaskInfoResponse)?.colvalueList) {
+      return (data[0] as SprintTaskInfoResponse).colvalueList || []
+    }
+    return []
+  }
+  return (data as SprintTaskInfoResponse).colvalueList || []
 }
 
 // Add the API function directly in the component file
@@ -464,9 +486,10 @@ const TaskTableSprint = ({
 
   // Add this new query for fetching group info
   const sprintTaskGroupInfoApi = useQuery<SprintTaskGroupInfo[]>({
-    queryKey: ['sprint-task-group-info', sp?.WorkspaceID],
-    queryFn: () => fetchSprintTaskGroupInfo(sp?.WorkspaceID || 54),
-    enabled: enabled && !!sp?.WorkspaceID
+    // FIX: Use correct casing WorkSpaceID
+    queryKey: ['sprint-task-group-info', sp?.WorkSpaceID],
+    queryFn: () => fetchSprintTaskGroupInfo(sp?.WorkSpaceID || 54),
+    enabled: enabled && !!sp?.WorkSpaceID
   })
 
   // Get groupname for the current sprint
@@ -483,7 +506,7 @@ const TaskTableSprint = ({
           const idValue = item.taskGroupID || item.id;
           return idValue ? Number(idValue) : null;
         })
-        .filter(id => id !== null && !isNaN(Number(id)));
+        .filter((id): id is number => id !== null && !isNaN(Number(id)));
       
       return ids;
     }
@@ -502,14 +525,15 @@ const TaskTableSprint = ({
   }, [taskgroup, sp?.SprintID, taskGroupIds]);
 
   // Only fetch if we have valid taskGroupIds
-  const sprintTaskInfoApi = useQuery({
+  // FIX: Typed query return as SprintTaskInfoApiResult to avoid `any[]` property errors
+  const sprintTaskInfoApi = useQuery<SprintTaskInfoApiResult>({
     queryKey: ['sprint-task-info', taskGroupIds.sort().join(','), sp?.SprintID, currentTaskGroupId],
     queryFn: async () => {
       if (!taskGroupIds.length) {
         return [];
       }
       
-      const promises = taskGroupIds.map(id => fetchSprintTaskInfoList(id));
+      const promises = taskGroupIds.map((id: any) => fetchSprintTaskInfoList(id));
       const results = await Promise.all(promises);
       
       if (results && results.length > 0) {
@@ -608,7 +632,8 @@ const TaskTableSprint = ({
   const transformedData = useMemo(() => {
     const detailList = getTaskDetailList;
     
-    return detailList.map((task: any) => ({
+    // FIX: explicitly typed task parameter
+    return detailList.map((task: SprintTaskInfoResponse['detailList'] extends Array<infer T> ? T : any) => ({
       SprintTaskID: task.taskID ? String(task.taskID) : '',
       taskID: task.taskID,
       Taskname: task.taskname || '',
@@ -631,14 +656,14 @@ const TaskTableSprint = ({
       sprintID: task.sprintID || sp?.SprintID || 0,
       taskGroupID: currentTaskGroupId,
       // FIXED: Map flat priorityID/priorityname/colorcode fields into PriorityID and nested Priority object
-      PriorityID: task.priorityID || null,
-      priorityID: task.priorityID || null,
-      priorityname: task.priorityname || '',
-      colorcode: task.colorcode || '',
-      Priority: task.priorityID ? {
-        PriorityID: task.priorityID,
-        PriorityName: task.priorityname || '',
-        Colorcode: task.colorcode || ''
+      PriorityID: (task as any).priorityID || null,
+      priorityID: (task as any).priorityID || null,
+      priorityname: (task as any).priorityname || '',
+      colorcode: (task as any).colorcode || '',
+      Priority: (task as any).priorityID ? {
+        PriorityID: (task as any).priorityID,
+        PriorityName: (task as any).priorityname || '',
+        Colorcode: (task as any).colorcode || ''
       } : null,
       DynamicColumnList: task.dynamicColumnList || null,
       colvalueList: colvalueList
@@ -650,7 +675,7 @@ const TaskTableSprint = ({
     const rawData = transformedData
     
     if (selectedTask && selectedTask.SprintTaskID) {
-      return rawData.filter(task => task.SprintTaskID === selectedTask.SprintTaskID)
+      return rawData.filter((task: any) => task.SprintTaskID === selectedTask.SprintTaskID)
     }
     
     return rawData
@@ -668,6 +693,13 @@ const TaskTableSprint = ({
       return () => clearTimeout(timeout)
     }
   }, [showSelected])
+
+  // Helper to sync colvalueList after refetch
+  const syncColvalueList = () => {
+    if (sprintTaskInfoApi.data) {
+      setColvalueList(extractColvalueList(sprintTaskInfoApi.data))
+    }
+  }
 
   // Static columns definition
   const staticColumns: ColumnDef<any>[] = useMemo(
@@ -713,7 +745,7 @@ const TaskTableSprint = ({
         },
         cell: ({ getValue, row: { index }, column: { id }, table }) => {
           const value = getValue() as string;
-          return <ColumnTextField canEdit={true} getValue={() => value} index={index} id={id} table={table} />
+          return <ColumnTextField canEdit={true} getValue={() => (value as any)} index={index} id={id} table={table} />
         }
       },
       {
@@ -730,7 +762,7 @@ const TaskTableSprint = ({
         },
         cell: ({ getValue, row: { index }, column: { id }, table }) => {
           const value = getValue() as string;
-          return <DescriptionTextfiled canEdit={true} getValue={() => value} index={index} id={id} table={table} />
+          return <DescriptionTextfiled canEdit={true} getValue={() => (value as any)} index={index} id={id} table={table} />
         }
       },
       {
@@ -785,16 +817,7 @@ const TaskTableSprint = ({
               
               // Refetch to get latest data
               await sprintTaskInfoApi?.refetch();
-              
-              // Update colvalueList after refetch
-              if (sprintTaskInfoApi.data) {
-                const data = sprintTaskInfoApi.data;
-                if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                  setColvalueList(data[0].colvalueList);
-                } else if (data?.colvalueList) {
-                  setColvalueList(data.colvalueList);
-                }
-              }
+              syncColvalueList()
               
               // Update the table data
               table.options.meta?.updateData?.(index, 'Owner', newOwner ? JSON.stringify(newOwner) : '');
@@ -850,15 +873,7 @@ const TaskTableSprint = ({
               toast.success(`Task marked as ${newValue ? 'Unplanned' : 'Planned'} successfully`);
               
               await sprintTaskInfoApi?.refetch();
-              
-              if (sprintTaskInfoApi.data) {
-                const data = sprintTaskInfoApi.data;
-                if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                  setColvalueList(data[0].colvalueList);
-                } else if (data?.colvalueList) {
-                  setColvalueList(data.colvalueList);
-                }
-              }
+              syncColvalueList()
               
               table.options.meta?.updateData?.(index, 'IsUnplanned', String(newValue));
             } catch (error) {
@@ -888,7 +903,7 @@ const TaskTableSprint = ({
         },
          cell: ({ getValue, row: { index }, column: { id }, table }) => {
           const value = getValue() as string;
-          return <ActualSpTextfiled canEdit={true} getValue={() => value} index={index} id={id} table={table} />
+          return <ActualSpTextfiled canEdit={true} getValue={() => (value as any)} index={index} id={id} table={table} />
         }
       },
       {
@@ -903,7 +918,7 @@ const TaskTableSprint = ({
         },
         cell: ({ getValue, row: { index }, column: { id }, table }) => {
           const value = getValue() as string;
-          return <EstimateSpTextfiled canEdit={true} getValue={() => value} index={index} id={id} table={table} />
+          return <EstimateSpTextfiled canEdit={true} getValue={() => (value as any)} index={index} id={id} table={table} />
         }
       },
        {
@@ -934,21 +949,13 @@ const TaskTableSprint = ({
     return (
       <TaskStatus
         row={original}
+        // FIX: removed sprintTaskInfoApi, setColvalueList, updateSprintTask props that don't exist on TaskStatusProps
         refetch={() => {
-          sprintTaskInfoApi.refetch();
-          if (sprintTaskInfoApi.data) {
-            const data = sprintTaskInfoApi.data;
-            if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-              setColvalueList(data[0].colvalueList);
-            } else if (data?.colvalueList) {
-              setColvalueList(data.colvalueList);
-            }
-          }
+          sprintTaskInfoApi.refetch().then(() => {
+            syncColvalueList()
+          });
         }}
         canEdit={true}
-        sprintTaskInfoApi={sprintTaskInfoApi}
-        setColvalueList={setColvalueList}
-        updateSprintTask={updateSprintTaskAPI}
       />
     );
   }
@@ -992,14 +999,7 @@ const TaskTableSprint = ({
               value={dynamicValue}
               refetch={() => {
                 sprintTaskInfoApi.refetch().then(() => {
-                  if (sprintTaskInfoApi.data) {
-                    const data = sprintTaskInfoApi.data;
-                    if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                      setColvalueList(data[0].colvalueList);
-                    } else if (data?.colvalueList) {
-                      setColvalueList(data.colvalueList);
-                    }
-                  }
+                  syncColvalueList()
                 });
               }}
             />
@@ -1070,15 +1070,7 @@ const TaskTableSprint = ({
             toast.success("Task name updated successfully");
             
             await sprintTaskInfoApi?.refetch();
-            
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            syncColvalueList()
           } catch (error) {
             console.error('Error updating task name:', error);
             toast.error("Failed to update task name");
@@ -1106,15 +1098,7 @@ const TaskTableSprint = ({
             toast.success("Task description updated successfully");
             
             await sprintTaskInfoApi?.refetch();
-            
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            syncColvalueList()
           } catch (error) {
             console.error('Error updating task description:', error);
             toast.error("Failed to update task description");
@@ -1144,15 +1128,7 @@ const TaskTableSprint = ({
             toast.success("Actual SP updated successfully");
             
             await sprintTaskInfoApi?.refetch();
-            
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            syncColvalueList()
           } catch (error) {
             console.error('Error updating actual SP:', error);
             toast.error("Failed to update actual SP");
@@ -1182,15 +1158,7 @@ const TaskTableSprint = ({
             toast.success("Estimated SP updated successfully");
             
             await sprintTaskInfoApi?.refetch();
-            
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            syncColvalueList()
           } catch (error) {
             console.error('Error updating estimated SP:', error);
             toast.error("Failed to update estimated SP");
@@ -1201,7 +1169,8 @@ const TaskTableSprint = ({
           try {
             const currentTask = filteredData[rowIndex];
             const taskId = currentTask?.SprintTaskID?.toString();
-            const isUnplannedValue = value === 'true' || value === true;
+            // FIX: value is string | object, so compare with string only
+            const isUnplannedValue = value === 'true';
             
             const taskData = {
               Taskname: currentTask?.Taskname || '',
@@ -1219,15 +1188,7 @@ const TaskTableSprint = ({
             toast.success(`Task marked as ${isUnplannedValue ? 'Unplanned' : 'Planned'} successfully`);
             
             await sprintTaskInfoApi?.refetch();
-            
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            syncColvalueList()
           } catch (error) {
             console.error('Error updating IsUnplanned:', error);
             toast.error("Failed to update task status");
@@ -1237,14 +1198,7 @@ const TaskTableSprint = ({
         else if (typeof value === 'object' && value !== null && 'AdditionalColumnID' in value && filteredData[rowIndex]?.SprintTaskID) {
           try {
             await sprintTaskInfoApi?.refetch();
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            syncColvalueList()
           } catch (error) {
             console.error('error updating dynamic column:', error);
           }
@@ -1285,14 +1239,7 @@ const TaskTableSprint = ({
       const result = await response.json()
       
       await sprintTaskInfoApi.refetch()
-      if (sprintTaskInfoApi.data) {
-        const data = sprintTaskInfoApi.data;
-        if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-          setColvalueList(data[0].colvalueList);
-        } else if (data?.colvalueList) {
-          setColvalueList(data.colvalueList);
-        }
-      }
+      syncColvalueList()
       
     } catch (error) {
       console.error('Error creating task:', error)
@@ -1306,14 +1253,7 @@ const TaskTableSprint = ({
   useEffect(() => {
     if (enabled && taskGroupIds.length > 0 && currentTaskGroupId) {
       sprintTaskInfoApi.refetch().then(() => {
-        if (sprintTaskInfoApi.data) {
-          const data = sprintTaskInfoApi.data;
-          if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-            setColvalueList(data[0].colvalueList);
-          } else if (data?.colvalueList) {
-            setColvalueList(data.colvalueList);
-          }
-        }
+        syncColvalueList()
       });
     }
   }, [enabled, taskGroupIds.join(','), currentTaskGroupId]);
@@ -1327,8 +1267,11 @@ const TaskTableSprint = ({
   }
 
   if (sprintTaskInfoApi?.isError) {
-    return <div>Error: {sprintTaskInfoApi.error?.message || 'Failed to load data'}</div>
+    return <div>Error: {(sprintTaskInfoApi.error as Error)?.message || 'Failed to load data'}</div>
   }
+
+  // FIX: Convert Record<string, boolean> to string[] for DeleteTasksComponent
+  const selectedRowIds = Object.keys(selectedRows).filter(key => selectedRows[key])
 
   return (
     <div className='px-3'>
@@ -1404,18 +1347,13 @@ const TaskTableSprint = ({
       {showCard &&
         <DeleteTasksComponent
           showCard={showCard}
-          selectedRows={selectedRows}
+          // FIX: pass selectedRowIds (string[]) instead of selectedRows (Record<string,boolean>)
+          selectedRows={selectedRowIds}
           sprintlist={transformedData}
           refetch={() => {
-            sprintTaskInfoApi.refetch();
-            if (sprintTaskInfoApi.data) {
-              const data = sprintTaskInfoApi.data;
-              if (Array.isArray(data) && data.length > 0 && data[0]?.colvalueList) {
-                setColvalueList(data[0].colvalueList);
-              } else if (data?.colvalueList) {
-                setColvalueList(data.colvalueList);
-              }
-            }
+            sprintTaskInfoApi.refetch().then(() => {
+              syncColvalueList()
+            });
           }}
           setSelectedRows={setSelectedRows}
         />}
@@ -1424,18 +1362,13 @@ const TaskTableSprint = ({
         setAnchorEl={setAnchorEl}
         onSubmit={(data) => {
           sprintTaskInfoApi.refetch().then(() => {
-            if (sprintTaskInfoApi.data) {
-              const responseData = sprintTaskInfoApi.data;
-              if (Array.isArray(responseData) && responseData.length > 0 && responseData[0]?.colvalueList) {
-                setColvalueList(responseData[0].colvalueList);
-              } else if (responseData?.colvalueList) {
-                setColvalueList(responseData.colvalueList);
-              }
-            }
+            syncColvalueList()
           });
         }}
-        spintid={sp?.WorkspaceID}
-        groupid={currentTaskGroupId}
+        // FIX: Use WorkSpaceID (correct casing)
+        spintid={(sp as any)?.WorkSpaceID}
+        // FIX: null-coalesce to avoid passing null where number is required
+        groupid={currentTaskGroupId ?? 0}
       />
     </div>
   )
